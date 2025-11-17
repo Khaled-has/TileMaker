@@ -1,0 +1,37 @@
+#ifndef WINDOWSWINDOW_H
+#define WINDOWSWINDOW_H
+
+#include "Window.h"
+
+#include <glad/glad.h>
+#include <SDL3/SDL.h>
+
+namespace Editor
+{
+
+	class WindowsWindow : public Window
+	{
+	public:
+		WindowsWindow();
+		~WindowsWindow();
+
+		void OnUpdate() override;
+		void OnEvent(EventFn evenFn) const override;
+		void Create() override;
+
+		unsigned int GetWidth() const override { return w_Prop.Width; }
+		unsigned int GetHeight() const override { return w_Prop.Height; }
+
+	private:
+		WindowProp w_Prop;
+
+		SDL_Window* w_Window	= nullptr;
+		SDL_GLContext w_Context = 0;
+	};
+
+	WindowsWindow* CreateWindowsWindow();
+}
+
+
+
+#endif
