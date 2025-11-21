@@ -64,7 +64,8 @@ namespace Editor
 		// Close Application
 		if (Dispatch(event, KeyPressedEvent(ED_ESCAPE).GetEvent()))
 		{
-
+			if (KeyCheck<KeyPressedEvent>(ED_ESCAPE, event))
+				pAppRunning = false;
 		}
 
 		if (Dispatch(event, ApplicationEvent(ED_APP_QUIT).GetEvent()))

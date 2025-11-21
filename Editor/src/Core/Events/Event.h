@@ -6,7 +6,7 @@
 enum class EventClassType
 {
 	None = 0,
-	KeyPressed, KeyReleased,
+	KeyPressed, KeyReleased, KeyTyped,
 	MouseMoved, MousePressed, MouseReleased, MouseScroll,
 	WindowApp
 };
@@ -54,30 +54,6 @@ namespace Editor {
 	{
 		return (ev_1.GetType() == ev_2.GetType() && ev_1.GetEventClassType() == ev_2.GetEventClassType()) ? true : false;
 	}
-
-	class KeyDispatch
-	{
-		template<typename T>
-		using EventFunc = std::function(<void(T&, unsigned int)>);
-	public:
-		KeyDispatch(Event& event)
-			: event(event)
-		{
-		}
-
-		template<typename T>
-		bool Check(EventFunc<T&> func)
-		{
-			if (T::GetStaticType() == event::GetStaticType())
-			{
-				return (T.GetKeyCode() == event.GetKeyCode()) ? true : false;
-			}
-			return false;
-		}
-
-	private:
-		Event& event;
-	};
 
 }
 

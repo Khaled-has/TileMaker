@@ -4,6 +4,7 @@
 #include "Core/Layer.h"
 
 #include "Core/Events/MouseEvent.h"
+#include "Core/Events/KeyEvent.h"
 
 namespace Editor {
 
@@ -21,6 +22,8 @@ namespace Editor {
 
 	private:
 
+		void OnKeyPressedEvent(KeyPressedEvent& e);
+		void OnKeyReleasedEvent(KeyReleasedEvent& e);
 		void OnMouseMovedEvent(MouseMovedEvent& e);
 		void OnMousePressedEvent(MousePressedEvent& e);
 		void OnMouseReleasedEvent(MouseReleasedEvent& e);

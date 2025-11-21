@@ -43,7 +43,6 @@ namespace Editor {
 			}
 
 			layer->OnUpdate();
-			ED_LOG_INFO("Layer Name: {0}", layer->GetName());
 		}
 	}
 

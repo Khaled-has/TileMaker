@@ -5,51 +5,81 @@
 
 namespace Editor {
 
-	class KeyPressedEvent : public Event
+	class KeyEvent : public Event
+	{
+	public:
+		KeyEvent(unsigned int keycode)
+			: keyCode(keycode)
+		{
+		}
+
+		inline unsigned int GetKeyCode() const { return keyCode; }
+
+		SET_EVENT_TYPE(KeyboardCategoryEvents)
+	private:
+		unsigned int keyCode;
+	};
+
+	class KeyPressedEvent : public KeyEvent
 	{
 	public:
 		KeyPressedEvent(unsigned int keycode)
-			: keyCode(keycode)
+			: KeyEvent(keycode)
 		{
 		}
 
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "Key Pressed: " << Event::e_Handle;
+			ss << "Key Pressed: " << GetKeyCode();
 			return ss.str();
 		}
 
-		inline unsigned int GetKeyCode() const { return keyCode; }
-
-		SET_EVENT_TYPE(KeyboardCategoryEvents)
 		SET_CLASS_TYPE(KeyPressed)
-	private:
-		unsigned int keyCode;
 	};
 
-	class KeyReleasedEvent : public Event
+	class KeyReleasedEvent : public KeyEvent
 	{
 	public:
 		KeyReleasedEvent(unsigned int keycode)
-			: keyCode(keycode)
+			: KeyEvent(keycode)
 		{
 		}
 
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "Key Released: " << Event::e_Handle;
+			ss << "Key Released: " << GetKeyCode();
 			return ss.str();
 		}
 
-		inline unsigned int GetKeyCode() const { return keyCode; }
-
-		SET_EVENT_TYPE(KeyboardCategoryEvents)
 		SET_CLASS_TYPE(KeyReleased)
-	private:
-		unsigned int keyCode;
 	};
+
+	class KeyTypedEvent : public KeyEvent
+	{
+	public:
+		KeyTypedEvent(unsigned int keycode)
+			: KeyEvent(keycode)
+		{
+		}
+
+		std::string ToString() const override
+		{
+			std::stringstream ss;
+			ss << "Key Typed: " << GetKeyCode();
+			return ss.str();
+		}
+
+		SET_CLASS_TYPE(KeyTyped)
+	};
+
+	template<typename T>
+	inline bool KeyCheck(unsigned int keyCode, Event& event)
+	{
+		T ev = (*(T*)&event);
+		return (ev.GetKeyCode() == keyCode) ? true : false;
+	}
 
 }
 

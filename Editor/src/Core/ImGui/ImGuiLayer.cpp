@@ -14,7 +14,6 @@ namespace Editor {
 
 	ImGuiLayer::~ImGuiLayer()
 	{
-		ED_LOG_WARN("Destory");
 	}
 
 	void ImGuiLayer::OnAttach()
@@ -66,6 +65,16 @@ namespace Editor {
 	void ImGuiLayer::OnEvent(Event& event)
 	{
 
+		// Key Pressed Event
+		if (Dispatch(event, KeyPressedEvent(0).GetEvent()))
+		{
+			OnKeyPressedEvent((*(KeyPressedEvent*)&event));
+		}
+		// Key Released Event
+		if (Dispatch(event, KeyReleasedEvent(0).GetEvent()))
+		{
+			OnKeyReleasedEvent((*(KeyReleasedEvent*)&event));
+		}
 		// Mouse Moved Event
 		if (Dispatch(event, MouseMovedEvent(0, 0).GetEvent()))
 		{
@@ -76,7 +85,7 @@ namespace Editor {
 		{
 			OnMousePressedEvent((*(MousePressedEvent*)&event));
 		}
-		// Mouse Relessed Event
+		// Mouse Released Event
 		if (Dispatch(event, MouseReleasedEvent(0).GetEvent()))
 		{
 			OnMouseReleasedEvent((*(MouseReleasedEvent*)&event));
@@ -89,13 +98,53 @@ namespace Editor {
 
 	}
 
+	static void ConvertKeys(ImGuiKey& key, KeyEvent& e)
+	{
+		switch (e.GetKeyCode())
+		{
+		case ED_LEFT:
+			key = ImGuiKey_LeftArrow;
+			break;
+		case ED_RIGHT:
+			key = ImGuiKey_RightArrow;
+			break;
+		case ED_UP:
+			key = ImGuiKey_UpArrow;
+			break;
+		case ED_DOWN:
+			key = ImGuiKey_DownArrow;
+			break;
+		default:
+			key = ImGuiKey_None;
+			break;
+		}
+	}
+
+
+	void ImGuiLayer::OnKeyPressedEvent(KeyPressedEvent& e)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		ImGuiKey key;
+
+		ConvertKeys(key, e);
+
+		io.AddKeyEvent(key, true);
+	}
+
+	void ImGuiLayer::OnKeyReleasedEvent(KeyReleasedEvent& e)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		ImGuiKey key;
+
+		ConvertKeys(key, e);
+
+		io.AddKeyEvent(key, false);
+	}
 
 	void ImGuiLayer::OnMouseMovedEvent(MouseMovedEvent& e)
 	{
-		
 		ImGuiIO& io = ImGui::GetIO();
 		io.AddMousePosEvent(e.GetPosX(), e.GetPosY());
-
 	}
 
 	void ImGuiLayer::OnMousePressedEvent(MousePressedEvent& e)

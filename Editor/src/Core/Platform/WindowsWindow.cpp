@@ -62,6 +62,14 @@ namespace Editor {
 				eventFn(event);
 			}
 
+			// Key Typed
+			if (ev.type == SDL_EVENT_TEXT_INPUT)
+			{
+				KeyTypedEvent event(ev.key.key);
+				ED_LOG_INFO(event.ToString());
+				eventFn(event);
+			}
+
 			// Mouse Moved Position
 			if (ev.type == SDL_EVENT_MOUSE_MOTION) 
 			{
