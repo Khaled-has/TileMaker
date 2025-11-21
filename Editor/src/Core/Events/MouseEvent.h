@@ -33,8 +33,8 @@ namespace Editor {
 	{
 	public:
 		MousePressedEvent(unsigned int buttonCode)
+			: buttonCode(buttonCode)
 		{
-			Event::e_Handle = buttonCode;
 		}
 
 		std::string ToString() const override
@@ -44,16 +44,20 @@ namespace Editor {
 			return ss.str();
 		}
 
+		inline unsigned int GetButtonCode() const { return buttonCode; }
+
 		SET_EVENT_TYPE(MouseCategoryEvents)
 		SET_CLASS_TYPE(MousePressed)
+	private:
+		unsigned int buttonCode;
 	};
 
 	class MouseReleasedEvent : public Event
 	{
 	public:
 		MouseReleasedEvent(unsigned int buttonCode)
+			: buttonCode(buttonCode)
 		{
-			Event::e_Handle = buttonCode;
 		}
 
 		std::string ToString() const override
@@ -63,8 +67,12 @@ namespace Editor {
 			return ss.str();
 		}
 
+		inline unsigned int GetButtonCode() const { return buttonCode; }
+
 		SET_EVENT_TYPE(MouseCategoryEvents)
 		SET_CLASS_TYPE(MouseReleased)
+	private:
+		unsigned int buttonCode;
 	};
 
 	class MouseScrollEvent : public Event

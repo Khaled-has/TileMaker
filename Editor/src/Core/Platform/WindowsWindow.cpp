@@ -15,6 +15,10 @@ namespace Editor {
 
 	WindowsWindow::~WindowsWindow()
 	{
+		SDL_GL_DestroyContext(w_Context);
+		SDL_DestroyWindow(w_Window);
+		SDL_Quit();
+		ED_LOG_TRACE("=========>  Windows window destroyed!");
 	}
 
 	void WindowsWindow::OnUpdate()
@@ -89,7 +93,6 @@ namespace Editor {
 				ED_LOG_INFO(event.ToString());
 				eventFn(event);
 			}
-
 		}
 
 	}
@@ -105,17 +108,17 @@ namespace Editor {
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
+		w_Window = SDL_CreateWindow(w_Prop.Title.c_str(), w_Prop.Width, w_Prop.Height, SDL_WINDOW_OPENGL);
+		ED_ASSERT(w_Window, "Failed create SDL window!");
+
+		w_Context = SDL_GL_CreateContext(w_Window);
 		SDL_GL_MakeCurrent(w_Window, w_Context);
 
 		gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress);
 
 		SDL_GL_SetSwapInterval(true);
 
-		ED_ASSERT(!w_Window, "Failed create SDL window");
-
-		w_Window = SDL_CreateWindow(w_Prop.Title.c_str(), w_Prop.Width, w_Prop.Height, SDL_WINDOW_OPENGL);
-
-		ED_LOG_INFO("Windows window created");
+		ED_LOG_TRACE("=========>  Windows window created!");
 	}
 
 	WindowsWindow* CreateWindowsWindow()

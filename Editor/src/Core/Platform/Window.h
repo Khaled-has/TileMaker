@@ -37,6 +37,7 @@ namespace Editor {
 		virtual void OnUpdate() = 0;
 		virtual void OnEvent(EventFn evenFn) const = 0;
 		virtual void Create() = 0;
+
 	};
 
 }

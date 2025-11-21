@@ -13,8 +13,11 @@ namespace Editor
 
 	Application::Application()
 	{
+#ifdef ED_DEBUG
 		// Logging system static Init
 		Log::Init();
+#endif
+
 		ED_LOG_INFO("Application Started");
 
 		// App Window Initialize
@@ -27,14 +30,17 @@ namespace Editor
 
 		// Create Window
 		pAppWindow->Create();
+
+		// Application's Layers
+		pAppLayers = new LayerStack();
 		
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
+		pAppLayers->Push_Back(&pAppImGui);		// ImGui Layer
 
 	}
 
 	Application::~Application()
 	{
+		delete pAppWindow;
 		ED_LOG_TRACE("Application Ended");
 	}
 
@@ -43,6 +49,10 @@ namespace Editor
 		while (pAppRunning)
 		{
 			pAppWindow->OnEvent(BIND_FN(Application::AppEvent));
+
+			glClear(GL_COLOR_BUFFER_BIT);
+
+			pAppLayers->OnUpdate();
 
 			pAppWindow->OnUpdate();
 		}
@@ -53,13 +63,16 @@ namespace Editor
 		
 		// Close Application
 		if (Dispatch(event, KeyPressedEvent(ED_ESCAPE).GetEvent()))
-			pAppRunning = false;
+		{
+
+		}
 
 		if (Dispatch(event, ApplicationEvent(ED_APP_QUIT).GetEvent()))
 			pAppRunning = false;
 
 		// ===================================================================
-		
+
+		pAppLayers->OnEvent(event);
 
 	}
 

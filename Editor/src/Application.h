@@ -3,6 +3,9 @@
 
 #include "hzpch.h"
 #include "Core/Platform/WindowsWindow.h"
+#include "Core/LayerStack.h"
+
+#include "Core/ImGui/ImGuiLayer.h"
 
 
 namespace Editor
@@ -17,10 +20,12 @@ namespace Editor
 		void Run();
 		void AppEvent(Event& event);
 
-		inline void Test() { ED_LOG_WARN("Test Success"); }
 	private:
 		Window* pAppWindow;
 		bool pAppRunning = true;
+		LayerStack* pAppLayers;
+		
+		ImGuiLayer pAppImGui;
 
 	};
 

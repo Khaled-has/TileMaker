@@ -15,7 +15,7 @@ add_executable(${PROJECT_NAME})
 
 target_sources(${PROJECT_NAME} PRIVATE
 				"src/main.cpp" "src/Application.cpp" "src/Log/Log.cpp" "src/Core/Platform/WindowsWindow.cpp"
-				${IMGUI_CPP}
+				"src/Core/LayerStack.cpp" "src/Core/ImGui/ImGuiLayer.cpp" ${IMGUI_CPP}
 )
 
 
@@ -62,15 +62,12 @@ target_link_libraries(${PROJECT_NAME}
 # ==============  Platform Settings
 if(WIN32) # ====>  Windows
 
-
 	# SDL3 Dll copy
 	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 						COMMAND ${CMAKE_COMMAND} -E copy_if_different
 						"${CMAKE_SOURCE_DIR}/Editor/external/SDL3/lib/x64/SDL3.dll"
 						$<TARGET_FILE_DIR:${PROJECT_NAME}>
 	)
-
-	
 
 	message("=====================================================================")
 	message("=======================>  Build For Windows  <=======================")
@@ -83,3 +80,4 @@ endif()
 # =================  Compile Defines ================ #
 
 add_compile_definitions(ED_DEBUG)		# Debug
+

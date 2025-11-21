@@ -9,11 +9,9 @@ namespace Editor
 
 	void Log::Init()
 	{
-#ifdef ED_DEBUG
 		spdlog::set_pattern("%^[%T] %n: %v%$");
 		m_logger = spdlog::stdout_color_mt("Editor");
 		m_logger->set_level(spdlog::level::trace);
-#endif
 	}
 
 }

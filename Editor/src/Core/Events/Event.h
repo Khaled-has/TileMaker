@@ -32,7 +32,10 @@ namespace Editor {
 	class Event
 	{
 	public:
-		Event() { e_Handle = 0; }
+		Event() 
+			: e_Handle(true)
+		{
+		}
 
 		virtual EventType GetType() const = 0;
 		virtual EventClassType GetEventClassType() const = 0;
@@ -43,14 +46,38 @@ namespace Editor {
 		inline Event& GetEvent() { return *this; }
 
 	protected:
-		unsigned int e_Handle;
+		bool e_Handle;
 	};
 
 
 	inline bool Dispatch(Event& ev_1, Event& ev_2)
 	{
-		return (ev_1.GetHandle() == ev_2.GetHandle() && ev_1.GetType() == ev_2.GetType() && ev_1.GetEventClassType() == ev_2.GetEventClassType()) ? true : false;
+		return (ev_1.GetType() == ev_2.GetType() && ev_1.GetEventClassType() == ev_2.GetEventClassType()) ? true : false;
 	}
+
+	class KeyDispatch
+	{
+		template<typename T>
+		using EventFunc = std::function(<void(T&, unsigned int)>);
+	public:
+		KeyDispatch(Event& event)
+			: event(event)
+		{
+		}
+
+		template<typename T>
+		bool Check(EventFunc<T&> func)
+		{
+			if (T::GetStaticType() == event::GetStaticType())
+			{
+				return (T.GetKeyCode() == event.GetKeyCode()) ? true : false;
+			}
+			return false;
+		}
+
+	private:
+		Event& event;
+	};
 
 }
 
