@@ -5,7 +5,8 @@
 #include "Core/Events/KeyEvent.h"
 #include "Core/Events/ApplicationEvent.h"
 #include "Core/Events/MouseEvent.h"
-
+#ifndef ASSETS_PATH
+#endif
 namespace Editor {
 
 	
@@ -63,7 +64,7 @@ namespace Editor {
 			}
 
 			// Key Typed
-			if (ev.type == SDL_EVENT_TEXT_INPUT)
+			if (ev.type == SDL_EVENT_KEY_DOWN)
 			{
 				KeyTypedEvent event(ev.key.key);
 				ED_LOG_INFO(event.ToString());

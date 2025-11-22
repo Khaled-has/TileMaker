@@ -24,8 +24,8 @@ namespace Editor
 
 #ifdef WIN32 //  Windows Window
 		pAppWindow = Editor::CreateWindowsWindow();
-#elif LINUX //   linux Window
-
+#elif LINUX  //   linux Window
+		pAppWindow = Editor::CreateLinuxWindow();
 #endif
 
 		// Create Window
@@ -73,7 +73,9 @@ namespace Editor
 
 		// ===================================================================
 
-		pAppLayers->OnEvent(event);
+
+		pAppLayers->OnEvent(event);		// Update Layers Events
+
 
 	}
 

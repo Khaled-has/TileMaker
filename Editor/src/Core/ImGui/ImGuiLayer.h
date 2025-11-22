@@ -24,6 +24,7 @@ namespace Editor {
 
 		void OnKeyPressedEvent(KeyPressedEvent& e);
 		void OnKeyReleasedEvent(KeyReleasedEvent& e);
+		void OnKeyTypedEvent(KeyTypedEvent& e);
 		void OnMouseMovedEvent(MouseMovedEvent& e);
 		void OnMousePressedEvent(MousePressedEvent& e);
 		void OnMouseReleasedEvent(MouseReleasedEvent& e);

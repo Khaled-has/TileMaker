@@ -81,3 +81,5 @@ endif()
 
 add_compile_definitions(ED_DEBUG)		# Debug
 
+
+add_compile_definitions(ASSETS_PATH="${CMAKE_SOURCE_DIR}/Editor/assets/")	# Assets_Path
