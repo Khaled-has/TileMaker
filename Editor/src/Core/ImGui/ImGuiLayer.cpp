@@ -218,11 +218,11 @@ namespace Editor {
 		ImGuiIO& io = ImGui::GetIO();
 		unsigned int k = e.GetKeyCode();
 
-		io.AddKeyEvent(ConvertKeys(k), true);
-		ED_LOG_WARN("This is it: {0}", k);
 		io.KeyCtrl  = (k == ED_LCTRL || k == ED_RCTRL)		?	true : false;
 		io.KeyShift = (k == ED_LSHIFT || k == ED_RSHIFT)	?	true : false;
 		io.KeyAlt   = (k == ED_LALT || k == ED_RALT)		?	true : false;
+
+		io.AddKeyEvent(ConvertKeys(k), true);
 
 		return false;
 	}
@@ -230,7 +230,6 @@ namespace Editor {
 	bool ImGuiLayer::OnKeyReleasedEvent(KeyReleasedEvent& e)
 	{
 		ImGuiIO& io = ImGui::GetIO();
-
 		io.AddKeyEvent(ConvertKeys(e.GetKeyCode()), false);
 
 		return false;
@@ -251,7 +250,7 @@ namespace Editor {
 		ImGuiIO& io = ImGui::GetIO();
 		io.AddMousePosEvent(e.GetPosX(), e.GetPosY());
 
-		return false;
+		return true;
 	}
 
 	bool ImGuiLayer::OnMousePressedEvent(MousePressedEvent& e)

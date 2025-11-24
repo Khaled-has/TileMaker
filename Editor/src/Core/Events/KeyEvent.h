@@ -74,13 +74,6 @@ namespace Editor {
 		SET_CLASS_TYPE(KeyTyped)
 	};
 
-	template<typename T>
-	inline bool KeyCheck(unsigned int keyCode, Event& event)
-	{
-		T ev = (*(T*)&event);
-		return (ev.GetKeyCode() == keyCode) ? true : false;
-	}
-
 }
 
 #define ED_EXTENDED_MASK          (1u << 29)

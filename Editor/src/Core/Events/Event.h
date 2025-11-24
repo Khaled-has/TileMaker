@@ -5,7 +5,7 @@
 
 namespace Editor {
 
-	enum class EventClassType
+	enum class EventType
 	{
 		None = 0,
 		KeyPressed, KeyReleased, KeyTyped,
@@ -13,7 +13,7 @@ namespace Editor {
 		WindowApp
 	};
 
-	enum EventType
+	enum EventCategory
 	{
 		None						= 0,
 		MouseCategoryEvents			= BIT(1),
@@ -23,12 +23,11 @@ namespace Editor {
 
 
 
-#define SET_EVENT_TYPE(type) static EventType GetStaticType() { return EventType::##type; }\
-							 virtual EventType GetType() const override { return GetStaticType(); }\
-							 virtual const char* GetName() const override { return #type; }
+#define SET_EVENT_TYPE(type) virtual const char* GetName() const override { return #type; }
+							 
 
-#define SET_CLASS_TYPE(type) virtual EventClassType GetEventClassType() const override { return EventClassType::##type; }\
-							 static EventClassType GetStaticClassType() { return EventClassType::##type; }
+#define SET_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::##type; }\
+							 virtual EventType GetType() const override { return GetStaticType(); }
 
 	class Event
 	{
@@ -40,7 +39,6 @@ namespace Editor {
 		}
 
 		virtual EventType GetType() const = 0;
-		virtual EventClassType GetEventClassType() const = 0;
 		virtual const char* GetName() const = 0;
 		virtual std::string ToString() const = 0;
 
@@ -60,7 +58,7 @@ namespace Editor {
 		template<typename T>
 		bool Dispatcher(EventFn<T> func)
 		{
-			if (m_Event.GetType() == T::GetStaticType() && m_Event.GetEventClassType() == T::GetStaticClassType() && m_Event.e_Handle)
+			if (m_Event.GetType() == T::GetStaticType()/* && m_Event.e_Handle*/)
 			{
 				m_Event.e_Handle = func(*(T*)&m_Event);
 				return true;

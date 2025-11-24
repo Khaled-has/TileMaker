@@ -75,7 +75,7 @@ namespace Editor
 		if (e.GetKeyCode() == ED_ESCAPE)
 			pAppRunning = false;
 
-		return false;
+		return true;
 	}
 
 	bool Application::OnApplicationEvent(ApplicationEvent& e)
