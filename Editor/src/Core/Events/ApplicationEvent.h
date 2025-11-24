@@ -11,20 +11,24 @@ namespace Editor {
 	class ApplicationEvent : public Event
 	{
 	public:
-		ApplicationEvent(unsigned int keycode)
+		ApplicationEvent(unsigned int appcode)
+			: appCode(appcode)
 		{
-			e_Handle = keycode;
 		}
+
+		inline unsigned int GetAppCode() const { return appCode; }
 
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "Application: " << Event::e_Handle;
+			ss << "Application: " << appCode;
 			return ss.str();
 		}
 
 		SET_EVENT_TYPE(ApplicationCategoryEvents)
 		SET_CLASS_TYPE(WindowApp)
+	private:
+		unsigned int appCode;
 	};
 
 }

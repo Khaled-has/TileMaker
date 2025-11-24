@@ -60,23 +60,30 @@ namespace Editor
 
 	void Application::AppEvent(Event& event)
 	{
-		
-		// Close Application
-		if (Dispatch(event, KeyPressedEvent(ED_ESCAPE).GetEvent()))
-		{
-			if (KeyCheck<KeyPressedEvent>(ED_ESCAPE, event))
-				pAppRunning = false;
-		}
+		// Application Events
+		EventDispatcher dispatcher(event);
 
-		if (Dispatch(event, ApplicationEvent(ED_APP_QUIT).GetEvent()))
+		dispatcher.Dispatcher<KeyPressedEvent>(BIND_FN(Application::OnKeyPressedEvent));
+		dispatcher.Dispatcher<ApplicationEvent>(BIND_FN(Application::OnApplicationEvent));
+
+		// Update Layers Events
+		pAppLayers->OnEvent(event);
+	}
+
+	bool Application::OnKeyPressedEvent(KeyPressedEvent& e)
+	{
+		if (e.GetKeyCode() == ED_ESCAPE)
 			pAppRunning = false;
 
-		// ===================================================================
+		return false;
+	}
 
+	bool Application::OnApplicationEvent(ApplicationEvent& e)
+	{
+		if (e.GetAppCode() == ED_APP_QUIT)
+			pAppRunning = false;
 
-		pAppLayers->OnEvent(event);		// Update Layers Events
-
-
+		return false;
 	}
 
 }

@@ -22,13 +22,13 @@ namespace Editor {
 
 	private:
 
-		void OnKeyPressedEvent(KeyPressedEvent& e);
-		void OnKeyReleasedEvent(KeyReleasedEvent& e);
-		void OnKeyTypedEvent(KeyTypedEvent& e);
-		void OnMouseMovedEvent(MouseMovedEvent& e);
-		void OnMousePressedEvent(MousePressedEvent& e);
-		void OnMouseReleasedEvent(MouseReleasedEvent& e);
-		void OnMouseScrollEvent(MouseScrollEvent& e);
+		bool OnKeyPressedEvent(KeyPressedEvent& e);
+		bool OnKeyReleasedEvent(KeyReleasedEvent& e);
+		bool OnKeyTypedEvent(KeyTypedEvent& e);
+		bool OnMouseMovedEvent(MouseMovedEvent& e);
+		bool OnMousePressedEvent(MousePressedEvent& e);
+		bool OnMouseReleasedEvent(MouseReleasedEvent& e);
+		bool OnMouseScrollEvent(MouseScrollEvent& e);
 	};
 
 }

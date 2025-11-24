@@ -18,7 +18,6 @@ namespace Editor
 		~Application();
 
 		void Run();
-		void AppEvent(Event& event);
 
 	private:
 		Window* pAppWindow;
@@ -27,6 +26,10 @@ namespace Editor
 		
 		ImGuiLayer pAppImGui;
 
+		void AppEvent(Event& event);
+
+		bool OnKeyPressedEvent(KeyPressedEvent& e);
+		bool OnApplicationEvent(ApplicationEvent& e);
 	};
 
 	inline static Application* CreateApplication()

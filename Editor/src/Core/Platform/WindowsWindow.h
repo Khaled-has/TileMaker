@@ -6,6 +6,10 @@
 #include <glad/glad.h>
 #include <SDL3/SDL.h>
 
+#include "Core/Events/KeyEvent.h"
+#include "Core/Events/ApplicationEvent.h"
+#include "Core/Events/MouseEvent.h"
+
 namespace Editor
 {
 

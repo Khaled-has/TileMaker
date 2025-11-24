@@ -26,11 +26,11 @@ namespace Editor {
 		io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
 		io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
 		(void)io;
-		
+
 		io.Fonts->AddFontFromFileTTF((std::string(ASSETS_PATH) + "Fonts/JetBrainsMono-Bold.ttf").c_str());
 
 		ImGui::StyleColorsDark();
-
+		
 		ImGui_ImplOpenGL3_Init("#version 460");
 		
 		ED_LOG_WARN("||---> ImGui Initialized <---||");
@@ -68,41 +68,28 @@ namespace Editor {
 	void ImGuiLayer::OnEvent(Event& event)
 	{
 
+		EventDispatcher dispatcher(event);
+
 		// Key Pressed Event
-		if (Dispatch(event, KeyPressedEvent(0).GetEvent()))
-		{
-			OnKeyPressedEvent((*(KeyPressedEvent*)&event));
-		}
+		dispatcher.Dispatcher<KeyPressedEvent>(BIND_FN(ImGuiLayer::OnKeyPressedEvent));
+
 		// Key Released Event
-		if (Dispatch(event, KeyReleasedEvent(0).GetEvent()))
-		{
-			OnKeyReleasedEvent((*(KeyReleasedEvent*)&event));
-		}
+		dispatcher.Dispatcher<KeyReleasedEvent>(BIND_FN(ImGuiLayer::OnKeyReleasedEvent));
+
 		// Key Typed Event
-		if (Dispatch(event, KeyTypedEvent(0).GetEvent()))
-		{
-			OnKeyTypedEvent((*(KeyTypedEvent*)&event));
-		}
+		dispatcher.Dispatcher<KeyTypedEvent>(BIND_FN(ImGuiLayer::OnKeyTypedEvent));
+
 		// Mouse Moved Event
-		if (Dispatch(event, MouseMovedEvent(0, 0).GetEvent()))
-		{
-			OnMouseMovedEvent((*(MouseMovedEvent*)&event));
-		}
+		dispatcher.Dispatcher<MouseMovedEvent>(BIND_FN(ImGuiLayer::OnMouseMovedEvent));
+
 		// Mouse Pressed Event
-		if (Dispatch(event, MousePressedEvent(0).GetEvent()))
-		{
-			OnMousePressedEvent((*(MousePressedEvent*)&event));
-		}
+		dispatcher.Dispatcher<MousePressedEvent>(BIND_FN(ImGuiLayer::OnMousePressedEvent));
+
 		// Mouse Released Event
-		if (Dispatch(event, MouseReleasedEvent(0).GetEvent()))
-		{
-			OnMouseReleasedEvent((*(MouseReleasedEvent*)&event));
-		}
+		dispatcher.Dispatcher<MouseReleasedEvent>(BIND_FN(ImGuiLayer::OnMouseReleasedEvent));
+
 		// Mouse Scroll Event
-		if (Dispatch(event, MouseScrollEvent(0, 0).GetEvent()))
-		{
-			OnMouseScrollEvent((*(MouseScrollEvent*)&event));
-		}
+		dispatcher.Dispatcher<MouseScrollEvent>(BIND_FN(ImGuiLayer::OnMouseScrollEvent));
 
 	}
 
@@ -226,56 +213,70 @@ namespace Editor {
 		}
 	}
 
-	void ImGuiLayer::OnKeyPressedEvent(KeyPressedEvent& e)
+	bool ImGuiLayer::OnKeyPressedEvent(KeyPressedEvent& e)
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		unsigned int k = e.GetKeyCode();
 
 		io.AddKeyEvent(ConvertKeys(k), true);
-
+		ED_LOG_WARN("This is it: {0}", k);
 		io.KeyCtrl  = (k == ED_LCTRL || k == ED_RCTRL)		?	true : false;
 		io.KeyShift = (k == ED_LSHIFT || k == ED_RSHIFT)	?	true : false;
 		io.KeyAlt   = (k == ED_LALT || k == ED_RALT)		?	true : false;
+
+		return false;
 	}
 
-	void ImGuiLayer::OnKeyReleasedEvent(KeyReleasedEvent& e)
+	bool ImGuiLayer::OnKeyReleasedEvent(KeyReleasedEvent& e)
 	{
 		ImGuiIO& io = ImGui::GetIO();
 
 		io.AddKeyEvent(ConvertKeys(e.GetKeyCode()), false);
+
+		return false;
 	}
 
-	void ImGuiLayer::OnKeyTypedEvent(KeyTypedEvent& e)
+	bool ImGuiLayer::OnKeyTypedEvent(KeyTypedEvent& e)
 	{
 		ImGuiIO& io = ImGui::GetIO();
 
 		if (e.GetKeyCode() > 0 && e.GetKeyCode() < 0x10000)
 			io.AddInputCharacter((unsigned short)e.GetKeyCode());
+
+		return false;
 	}
 
-	void ImGuiLayer::OnMouseMovedEvent(MouseMovedEvent& e)
+	bool ImGuiLayer::OnMouseMovedEvent(MouseMovedEvent& e)
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		io.AddMousePosEvent(e.GetPosX(), e.GetPosY());
+
+		return false;
 	}
 
-	void ImGuiLayer::OnMousePressedEvent(MousePressedEvent& e)
+	bool ImGuiLayer::OnMousePressedEvent(MousePressedEvent& e)
 	{
 
 		ImGuiIO& io = ImGui::GetIO();
 		io.AddMouseButtonEvent(ConvertButtons(e.GetButtonCode()), true);
+
+		return false;
 	}
 
-	void ImGuiLayer::OnMouseReleasedEvent(MouseReleasedEvent& e)
+	bool ImGuiLayer::OnMouseReleasedEvent(MouseReleasedEvent& e)
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		io.AddMouseButtonEvent(ConvertButtons(e.GetButtonCode()), false);
+
+		return false;
 	}
 
-	void ImGuiLayer::OnMouseScrollEvent(MouseScrollEvent& e)
+	bool ImGuiLayer::OnMouseScrollEvent(MouseScrollEvent& e)
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		io.AddMouseWheelEvent(e.GetYOffset(), e.GetXOffset());
+
+		return false;
 	}
 
 }

@@ -3,7 +3,7 @@
 
 int main(int argc, char** argv)
 {
-	Editor::Application* app = Editor::CreateApplication();
+	auto app = Editor::CreateApplication();
 
 	app->Run();
 	delete app;

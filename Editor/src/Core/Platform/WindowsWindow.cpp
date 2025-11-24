@@ -2,9 +2,6 @@
 
 #include "Log/Log.h"
 
-#include "Core/Events/KeyEvent.h"
-#include "Core/Events/ApplicationEvent.h"
-#include "Core/Events/MouseEvent.h"
 #ifndef ASSETS_PATH
 #endif
 namespace Editor {
@@ -47,7 +44,7 @@ namespace Editor {
 				}
 			}
 
-			// Key Pressed Check
+			// Key Pressed
 			if (ev.type == SDL_EVENT_KEY_DOWN)
 			{
 				KeyPressedEvent event(ev.key.key);
@@ -63,13 +60,13 @@ namespace Editor {
 				eventFn(event);
 			}
 
-			// Key Typed
-			if (ev.type == SDL_EVENT_KEY_DOWN)
-			{
-				KeyTypedEvent event(ev.key.key);
-				ED_LOG_INFO(event.ToString());
-				eventFn(event);
-			}
+			//// Key Typed
+			//if (ev.type == SDL_EVENT_KEY_DOWN)
+			//{
+			//	KeyTypedEvent event(ev.key.key);
+			//	ED_LOG_INFO(event.ToString());
+			//	eventFn(event);
+			//}
 
 			// Mouse Moved Position
 			if (ev.type == SDL_EVENT_MOUSE_MOTION) 
