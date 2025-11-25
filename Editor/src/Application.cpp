@@ -8,11 +8,17 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl3.h"
 
+#include "Core/Platform/Windows/WindowsInput.h"
+
 namespace Editor
 {
 
+	Application* Application::s_Instance = nullptr;
+
 	Application::Application()
 	{
+		s_Instance = this;
+
 #ifdef ED_DEBUG
 		// Logging system static Init
 		Log::Init();
@@ -22,7 +28,7 @@ namespace Editor
 
 		// App Window Initialize
 
-#ifdef WIN32 //  Windows Window
+#ifdef WIN32 //  Windows Window & Input
 		pAppWindow = Editor::CreateWindowsWindow();
 #elif LINUX  //   linux Window
 		pAppWindow = Editor::CreateLinuxWindow();

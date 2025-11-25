@@ -1,7 +1,7 @@
 #ifndef WINDOWSWINDOW_H
 #define WINDOWSWINDOW_H
 
-#include "Window.h"
+#include "Core/Platform/Window.h"
 
 #include <glad/glad.h>
 #include <SDL3/SDL.h>
@@ -25,6 +25,8 @@ namespace Editor
 
 		unsigned int GetWidth() const override { return w_Prop.Width; }
 		unsigned int GetHeight() const override { return w_Prop.Height; }
+
+		inline virtual void* GetNativeWindow() const override { return w_Window; }
 
 	private:
 		WindowProp w_Prop;

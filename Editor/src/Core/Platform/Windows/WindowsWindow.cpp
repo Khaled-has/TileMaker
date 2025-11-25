@@ -1,6 +1,7 @@
 #include "WindowsWindow.h"
 
 #include "Log/Log.h"
+#include "WindowsInput.h"
 
 #ifndef ASSETS_PATH
 #endif
