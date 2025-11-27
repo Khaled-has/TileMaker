@@ -11,7 +11,7 @@ namespace Editor {
 
 	struct WindowProp
 	{
-		WindowProp(std::string title = "Editor", 
+		WindowProp(std::string title = "TileMaker", 
 			unsigned int width = 1440, 
 			unsigned int height = 720
 		)
@@ -39,6 +39,7 @@ namespace Editor {
 		virtual void Create() = 0;
 
 		virtual void* GetNativeWindow() const = 0;
+		virtual void* GetNativeContext() const = 0;
 
 	};
 

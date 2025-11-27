@@ -28,7 +28,7 @@ namespace Editor
 
 		// App Window Initialize
 
-#ifdef WIN32 //  Windows Window & Input
+#ifdef WIN32 //  Windows Window
 		pAppWindow = Editor::CreateWindowsWindow();
 #elif LINUX  //   linux Window
 		pAppWindow = Editor::CreateLinuxWindow();
@@ -40,7 +40,8 @@ namespace Editor
 		// Application's Layers
 		pAppLayers = new LayerStack();
 		
-		pAppLayers->Push_Back(&pAppImGui);		// ImGui Layer
+		pAppImGui = new ImGuiLayer();
+		pAppLayers->Push_Back(pAppImGui);		// ImGui Layer
 
 	}
 
@@ -56,9 +57,13 @@ namespace Editor
 		{
 			pAppWindow->OnEvent(BIND_FN(Application::AppEvent));
 
+			pAppLayers->OnUpdate();
+
 			glClear(GL_COLOR_BUFFER_BIT);
 
-			pAppLayers->OnUpdate();
+			pAppImGui->Begin();
+			pAppLayers->OnImGuiRender();
+			pAppImGui->End();
 
 			pAppWindow->OnUpdate();
 		}

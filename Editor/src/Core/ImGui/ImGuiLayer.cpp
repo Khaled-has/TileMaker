@@ -1,7 +1,13 @@
 #include "ImGuiLayer.h"
 
+#include "Application.h"
+
 #include <imgui.h>
 #include <imgui_impl_opengl3.h>
+
+#ifdef ED_WINDOW_SDL3
+#include <imgui_impl_sdl3.h>
+#endif
 
 #include <SDL3/SDL.h>
 
@@ -21,261 +27,133 @@ namespace Editor {
 		// --- ImGui Init ---
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
-		
-		ImGuiIO& io = ImGui::GetIO();
-		io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
-		io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
-		(void)io;
+
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
 		io.Fonts->AddFontFromFileTTF((std::string(ASSETS_PATH) + "Fonts/JetBrainsMono-Bold.ttf").c_str());
 
 		ImGui::StyleColorsDark();
-		
+
 		ImGui_ImplOpenGL3_Init("#version 460");
-		
+
+		// Init ImGui Window & Context
+#ifdef ED_WINDOW_SDL3
+		bool task = ImGui_ImplSDL3_InitForOpenGL(
+			static_cast<SDL_Window*>(Application::Get()->GetWindow()->GetNativeWindow()),
+			static_cast<SDL_GLContext>(Application::Get()->GetWindow()->GetNativeContext())
+		);
+
+		ED_ASSERT(task, "Failed To Init SDL3 Context & Window For ImGui");
+#endif
+
 		ED_LOG_WARN("||---> ImGui Initialized <---||");
 	}
 
-	void ImGuiLayer::OnUpdate()
+	void ImGuiLayer::OnDeatch()
+	{
+	}
+
+	void ImGuiLayer::OnImGuiRender()
+	{
+		static bool show = true;
+		ImGui::ShowDemoWindow(&show);
+	}
+
+	void ImGuiLayer::Begin()
 	{
 		ImGuiIO& io = ImGui::GetIO();
-		io.DisplaySize = ImVec2(1440, 720);
-		
-		static bool first = true;
-		static double last = 0;
-		static double current;
-		if (first)
-		{
-			last = SDL_GetPerformanceCounter();
-			first = false;
-		}
-		current = SDL_GetPerformanceCounter();
-		double deltaTime = (current - last) / SDL_GetPerformanceFrequency();
-		last = current;
-
-		io.DeltaTime = (float)deltaTime;
+		auto appWindow = Application::Get()->GetWindow();
+		io.DisplaySize = ImVec2(appWindow->GetWidth(), appWindow->GetHeight());
 
 		ImGui_ImplOpenGL3_NewFrame();
+#ifdef ED_WINDOW_SDL3	// If The Window from SDL3
+		ImGui_ImplSDL3_NewFrame();
+#endif
 		ImGui::NewFrame();
-		
-		static bool show;
-		ImGui::ShowDemoWindow(&show);
 
+		// Docking Space
+		
+		// TL;DR; this demo is more complicated than what most users you would normally use.
+	// If we remove all options we are showcasing, this demo would become a simple call to ImGui::DockSpaceOverViewport() !!
+	// In this specific demo, we are not using DockSpaceOverViewport() because:
+
+		static bool opt_fullscreen = true;
+		static bool opt_padding = false;
+		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+
+		// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
+		// because it would be confusing to have two docking targets within each others.
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+		if (opt_fullscreen)
+		{
+			const ImGuiViewport* viewport = ImGui::GetMainViewport();
+			ImGui::SetNextWindowPos(viewport->WorkPos);
+			ImGui::SetNextWindowSize(viewport->WorkSize);
+			ImGui::SetNextWindowViewport(viewport->ID);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+			window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+		}
+		else
+		{
+			dockspace_flags &= ~ImGuiDockNodeFlags_PassthruCentralNode;
+		}
+
+		// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
+		// and handle the pass-thru hole, so we ask Begin() to not render a background.
+		if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
+		{
+			window_flags |= ImGuiWindowFlags_NoBackground;
+		}
+
+		// Important: note that we proceed even if Begin() returns false (aka window is collapsed).
+		// This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
+		// all active windows docked into it will lose their parent and become undocked.
+		// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
+		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
+		if (!opt_padding)
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		ImGui::Begin("DockSpace Demo", nullptr, window_flags);
+		if (!opt_padding)
+			ImGui::PopStyleVar();
+
+		if (opt_fullscreen)
+			ImGui::PopStyleVar(2);
+
+		// Submit the DockSpace
+		// REMINDER: THIS IS A DEMO FOR ADVANCED USAGE OF DockSpace()!
+		// MOST REGULAR APPLICATIONS WILL SIMPLY WANT TO CALL DockSpaceOverViewport(). READ COMMENTS ABOVE.
+		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
+		{
+			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+		}
+
+		ImGui::End();
+
+	}
+
+	void ImGuiLayer::End()
+	{
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-	}
 
-	void ImGuiLayer::OnEvent(Event& event)
-	{
-
-		EventDispatcher dispatcher(event);
-
-		// Key Pressed Event
-		dispatcher.Dispatcher<KeyPressedEvent>(BIND_FN(ImGuiLayer::OnKeyPressedEvent));
-
-		// Key Released Event
-		dispatcher.Dispatcher<KeyReleasedEvent>(BIND_FN(ImGuiLayer::OnKeyReleasedEvent));
-
-		// Key Typed Event
-		dispatcher.Dispatcher<KeyTypedEvent>(BIND_FN(ImGuiLayer::OnKeyTypedEvent));
-
-		// Mouse Moved Event
-		dispatcher.Dispatcher<MouseMovedEvent>(BIND_FN(ImGuiLayer::OnMouseMovedEvent));
-
-		// Mouse Pressed Event
-		dispatcher.Dispatcher<MousePressedEvent>(BIND_FN(ImGuiLayer::OnMousePressedEvent));
-
-		// Mouse Released Event
-		dispatcher.Dispatcher<MouseReleasedEvent>(BIND_FN(ImGuiLayer::OnMouseReleasedEvent));
-
-		// Mouse Scroll Event
-		dispatcher.Dispatcher<MouseScrollEvent>(BIND_FN(ImGuiLayer::OnMouseScrollEvent));
-
-	}
-
-	ImGuiKey ConvertKeys(unsigned int keycode)
-	{
-		switch (keycode)
+		ImGuiIO& io = ImGui::GetIO();
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
-		case ED_TAB: return ImGuiKey_Tab;
-		case ED_LEFT: return ImGuiKey_LeftArrow;
-		case ED_RIGHT: return ImGuiKey_RightArrow;
-		case ED_UP: return ImGuiKey_UpArrow;
-		case ED_DOWN: return ImGuiKey_DownArrow;
-		case ED_PAGEUP: return ImGuiKey_PageUp;
-		case ED_PAGEDOWN: return ImGuiKey_PageDown;
-		case ED_HOME: return ImGuiKey_Home;
-		case ED_END: return ImGuiKey_End;
-		case ED_INSERT: return ImGuiKey_Insert;
-		case ED_DELETE: return ImGuiKey_Delete;
-		case ED_BACKSPACE: return ImGuiKey_Backspace;
-		case ED_SPACE: return ImGuiKey_Space;
-		case ED_RETURN: return ImGuiKey_Enter;
-		case ED_ESCAPE: return ImGuiKey_Escape;
-		case ED_COMMA: return ImGuiKey_Comma;
-		case ED_PERIOD: return ImGuiKey_Period;
-		case ED_SEMICOLON: return ImGuiKey_Semicolon;
-		case ED_CAPSLOCK: return ImGuiKey_CapsLock;
-		case ED_SCROLLLOCK: return ImGuiKey_ScrollLock;
-		case ED_NUMLOCKCLEAR: return ImGuiKey_NumLock;
-		case ED_PRINTSCREEN: return ImGuiKey_PrintScreen;
-		case ED_PAUSE: return ImGuiKey_Pause;
-		case ED_LCTRL: return ImGuiKey_LeftCtrl;
-		case ED_LSHIFT: return ImGuiKey_LeftShift;
-		case ED_LALT: return ImGuiKey_LeftAlt;
-		case ED_LGUI: return ImGuiKey_LeftSuper;
-		case ED_RCTRL: return ImGuiKey_RightCtrl;
-		case ED_RSHIFT: return ImGuiKey_RightShift;
-		case ED_RALT: return ImGuiKey_RightAlt;
-		case ED_RGUI: return ImGuiKey_RightSuper;
-		case ED_APPLICATION: return ImGuiKey_Menu;
-		case ED_0: return ImGuiKey_0;
-		case ED_1: return ImGuiKey_1;
-		case ED_2: return ImGuiKey_2;
-		case ED_3: return ImGuiKey_3;
-		case ED_4: return ImGuiKey_4;
-		case ED_5: return ImGuiKey_5;
-		case ED_6: return ImGuiKey_6;
-		case ED_7: return ImGuiKey_7;
-		case ED_8: return ImGuiKey_8;
-		case ED_9: return ImGuiKey_9;
-		case ED_A: return ImGuiKey_A;
-		case ED_B: return ImGuiKey_B;
-		case ED_C: return ImGuiKey_C;
-		case ED_D: return ImGuiKey_D;
-		case ED_E: return ImGuiKey_E;
-		case ED_F: return ImGuiKey_F;
-		case ED_G: return ImGuiKey_G;
-		case ED_H: return ImGuiKey_H;
-		case ED_I: return ImGuiKey_I;
-		case ED_J: return ImGuiKey_J;
-		case ED_K: return ImGuiKey_K;
-		case ED_L: return ImGuiKey_L;
-		case ED_M: return ImGuiKey_M;
-		case ED_N: return ImGuiKey_N;
-		case ED_O: return ImGuiKey_O;
-		case ED_P: return ImGuiKey_P;
-		case ED_Q: return ImGuiKey_Q;
-		case ED_R: return ImGuiKey_R;
-		case ED_S: return ImGuiKey_S;
-		case ED_T: return ImGuiKey_T;
-		case ED_U: return ImGuiKey_U;
-		case ED_V: return ImGuiKey_V;
-		case ED_W: return ImGuiKey_W;
-		case ED_X: return ImGuiKey_X;
-		case ED_Y: return ImGuiKey_Y;
-		case ED_Z: return ImGuiKey_Z;
-		case ED_F1: return ImGuiKey_F1;
-		case ED_F2: return ImGuiKey_F2;
-		case ED_F3: return ImGuiKey_F3;
-		case ED_F4: return ImGuiKey_F4;
-		case ED_F5: return ImGuiKey_F5;
-		case ED_F6: return ImGuiKey_F6;
-		case ED_F7: return ImGuiKey_F7;
-		case ED_F8: return ImGuiKey_F8;
-		case ED_F9: return ImGuiKey_F9;
-		case ED_F10: return ImGuiKey_F10;
-		case ED_F11: return ImGuiKey_F11;
-		case ED_F12: return ImGuiKey_F12;
-		case ED_F13: return ImGuiKey_F13;
-		case ED_F14: return ImGuiKey_F14;
-		case ED_F15: return ImGuiKey_F15;
-		case ED_F16: return ImGuiKey_F16;
-		case ED_F17: return ImGuiKey_F17;
-		case ED_F18: return ImGuiKey_F18;
-		case ED_F19: return ImGuiKey_F19;
-		case ED_F20: return ImGuiKey_F20;
-		case ED_F21: return ImGuiKey_F21;
-		case ED_F22: return ImGuiKey_F22;
-		case ED_F23: return ImGuiKey_F23;
-		case ED_F24: return ImGuiKey_F24;
-		case ED_AC_BACK: return ImGuiKey_AppBack;
-		case ED_AC_FORWARD: return ImGuiKey_AppForward;
-		default: return ImGuiKey_None;
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+			
+			auto currentWindow = Application::Get()->GetWindow();
+
+#ifdef ED_WINDOW_SDL3
+			SDL_GL_MakeCurrent(static_cast<SDL_Window*>(currentWindow->GetNativeWindow()), static_cast<SDL_GLContext>(currentWindow->GetNativeContext()));
+#endif
 		}
-	}
-
-	unsigned int ConvertButtons(unsigned int buttoncode)
-	{
-		switch (buttoncode)
-		{
-		case ED_BUTTON_LEFT: return 0;
-			break;
-		case ED_BUTTON_RIGHT: return 1;
-			break;
-		case ED_BUTTON_MIDDLE: return 2;
-			break;
-		case ED_BUTTON_X1: return 3;
-			break;
-		case ED_BUTTON_X2: return 4;
-			break;
-		default: return 0;
-		}
-	}
-
-	bool ImGuiLayer::OnKeyPressedEvent(KeyPressedEvent& e)
-	{
-		ImGuiIO& io = ImGui::GetIO();
-		unsigned int k = e.GetKeyCode();
-
-		io.KeyCtrl  = (k == ED_LCTRL || k == ED_RCTRL)		?	true : false;
-		io.KeyShift = (k == ED_LSHIFT || k == ED_RSHIFT)	?	true : false;
-		io.KeyAlt   = (k == ED_LALT || k == ED_RALT)		?	true : false;
-
-		io.AddKeyEvent(ConvertKeys(k), true);
-
-		return false;
-	}
-
-	bool ImGuiLayer::OnKeyReleasedEvent(KeyReleasedEvent& e)
-	{
-		ImGuiIO& io = ImGui::GetIO();
-		io.AddKeyEvent(ConvertKeys(e.GetKeyCode()), false);
-
-		return false;
-	}
-
-	bool ImGuiLayer::OnKeyTypedEvent(KeyTypedEvent& e)
-	{
-		ImGuiIO& io = ImGui::GetIO();
-
-		if (e.GetKeyCode() > 0 && e.GetKeyCode() < 0x10000)
-			io.AddInputCharacter((unsigned short)e.GetKeyCode());
-
-		return false;
-	}
-
-	bool ImGuiLayer::OnMouseMovedEvent(MouseMovedEvent& e)
-	{
-		ImGuiIO& io = ImGui::GetIO();
-		io.AddMousePosEvent(e.GetPosX(), e.GetPosY());
-
-		return true;
-	}
-
-	bool ImGuiLayer::OnMousePressedEvent(MousePressedEvent& e)
-	{
-
-		ImGuiIO& io = ImGui::GetIO();
-		io.AddMouseButtonEvent(ConvertButtons(e.GetButtonCode()), true);
-
-		return false;
-	}
-
-	bool ImGuiLayer::OnMouseReleasedEvent(MouseReleasedEvent& e)
-	{
-		ImGuiIO& io = ImGui::GetIO();
-		io.AddMouseButtonEvent(ConvertButtons(e.GetButtonCode()), false);
-
-		return false;
-	}
-
-	bool ImGuiLayer::OnMouseScrollEvent(MouseScrollEvent& e)
-	{
-		ImGuiIO& io = ImGui::GetIO();
-		io.AddMouseWheelEvent(e.GetYOffset(), e.GetXOffset());
-
-		return false;
 	}
 
 }

@@ -3,6 +3,8 @@
 #include "Log/Log.h"
 #include "WindowsInput.h"
 
+#include <imgui_impl_sdl3.h>
+
 #ifndef ASSETS_PATH
 #endif
 namespace Editor {
@@ -32,6 +34,9 @@ namespace Editor {
 
 		while (SDL_PollEvent(&ev))
 		{
+			
+			//ImGui Event
+			ImGui_ImplSDL3_ProcessEvent(&ev);
 
 			// Application Check
 			{
@@ -49,7 +54,6 @@ namespace Editor {
 			if (ev.type == SDL_EVENT_KEY_DOWN)
 			{
 				KeyPressedEvent event(ev.key.key);
-				ED_LOG_INFO(event.ToString());
 				eventFn(event);
 			}
 
@@ -57,7 +61,6 @@ namespace Editor {
 			if (ev.type == SDL_EVENT_KEY_UP)
 			{
 				KeyReleasedEvent event(ev.key.key);
-				ED_LOG_INFO(event.ToString());
 				eventFn(event);
 			}
 
@@ -65,7 +68,6 @@ namespace Editor {
 			if (ev.type == SDL_EVENT_KEY_DOWN)
 			{
 				KeyTypedEvent event(ev.key.key);
-				ED_LOG_INFO(event.ToString());
 				eventFn(event);
 			}
 
@@ -73,7 +75,6 @@ namespace Editor {
 			if (ev.type == SDL_EVENT_MOUSE_MOTION) 
 			{
 				MouseMovedEvent event(ev.motion.x, ev.motion.y);
-				ED_LOG_INFO(event.ToString());
 				eventFn(event);
 			}
 
@@ -81,7 +82,6 @@ namespace Editor {
 			if (ev.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
 			{
 				MousePressedEvent event(ev.button.button);
-				ED_LOG_INFO(event.ToString());
 				eventFn(event);
 			}
 
@@ -89,7 +89,6 @@ namespace Editor {
 			if (ev.type == SDL_EVENT_MOUSE_BUTTON_UP)
 			{
 				MouseReleasedEvent event(ev.button.button);
-				ED_LOG_INFO(event.ToString());
 				eventFn(event);
 			}
 
@@ -97,7 +96,6 @@ namespace Editor {
 			if (ev.type == SDL_EVENT_MOUSE_WHEEL)
 			{
 				MouseScrollEvent event(ev.motion.x, ev.motion.y);
-				ED_LOG_INFO(event.ToString());
 				eventFn(event);
 			}
 		}

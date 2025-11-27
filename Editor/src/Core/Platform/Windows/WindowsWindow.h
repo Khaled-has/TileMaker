@@ -27,7 +27,7 @@ namespace Editor
 		unsigned int GetHeight() const override { return w_Prop.Height; }
 
 		inline virtual void* GetNativeWindow() const override { return w_Window; }
-
+		inline virtual void* GetNativeContext() const override { return w_Context; }
 	private:
 		WindowProp w_Prop;
 

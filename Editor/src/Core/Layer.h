@@ -15,21 +15,17 @@ namespace Editor {
 		{
 		}
 
-		virtual void OnAttach() = 0;
+		virtual void OnAttach() {};
+		virtual void OnDeatch() {};
 
-		virtual void ShutDown() = 0;
+		virtual void OnUpdate() {};
+		virtual void OnImGuiRender() {};
+		virtual void OnEvent(Event& event) {};
 
-		virtual void OnUpdate() = 0;
-		virtual void OnEvent(Event& event) = 0;
-
-		inline bool GetStateAtt() const { return l_Attach; }
 		inline std::string GetName() const { return l_Name; }
-
-		inline void IsAttached() { l_Attach = true; }
 
 	private:
 		std::string l_Name;
-		bool l_Attach = false;
 	};
 
 }

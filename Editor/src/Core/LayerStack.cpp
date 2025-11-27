@@ -12,6 +12,7 @@ namespace Editor {
 
 	void LayerStack::Push_Back(Layer* layer)
 	{
+		layer->OnAttach();
 		s_Layers.push_back(layer);
 	}
 
@@ -24,10 +25,7 @@ namespace Editor {
 	{
 		for (int i = s_Layers.size() - 1; i >= 0; i--)
 		{
-			if (s_Layers[i]->GetStateAtt())
-			{
-				s_Layers[i]->OnEvent(event);
-			}
+			s_Layers[i]->OnEvent(event);
 		}
 	}
 
@@ -36,13 +34,16 @@ namespace Editor {
 		// Layers Update
 		for (Layer* layer : s_Layers)
 		{
-			if (!layer->GetStateAtt())
-			{
-				layer->OnAttach();
-				layer->IsAttached();
-			}
-
 			layer->OnUpdate();
+		}
+	}
+
+	void LayerStack::OnImGuiRender()
+	{
+		// ImGui Rendering
+		for (Layer* layer : s_Layers)
+		{
+			layer->OnImGuiRender();
 		}
 	}
 

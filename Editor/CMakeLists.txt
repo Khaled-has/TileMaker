@@ -82,5 +82,8 @@ endif()
 
 add_compile_definitions(ED_DEBUG)		# Debug
 
+if (WIN32)
+	add_compile_definitions(ED_WINDOW_SDL3)
+endif()
 
 add_compile_definitions(ASSETS_PATH="${CMAKE_SOURCE_DIR}/Editor/assets/")	# Assets_Path

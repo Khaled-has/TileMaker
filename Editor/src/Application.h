@@ -29,7 +29,7 @@ namespace Editor
 		Window* pAppWindow;
 		LayerStack* pAppLayers;
 
-		ImGuiLayer pAppImGui;
+		ImGuiLayer* pAppImGui;
 
 		bool pAppRunning = true;
 

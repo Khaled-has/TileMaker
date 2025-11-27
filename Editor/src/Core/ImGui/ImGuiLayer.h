@@ -14,21 +14,13 @@ namespace Editor {
 		ImGuiLayer();
 		~ImGuiLayer();
 
-		void OnAttach() override;
-		void OnUpdate() override;
-		void OnEvent(Event& event) override;
+		virtual void OnAttach() override;
+		virtual void OnDeatch() override;
+		virtual void OnImGuiRender() override;
 
-		void ShutDown() override {}
+		void Begin();
+		void End();
 
-	private:
-
-		bool OnKeyPressedEvent(KeyPressedEvent& e);
-		bool OnKeyReleasedEvent(KeyReleasedEvent& e);
-		bool OnKeyTypedEvent(KeyTypedEvent& e);
-		bool OnMouseMovedEvent(MouseMovedEvent& e);
-		bool OnMousePressedEvent(MousePressedEvent& e);
-		bool OnMouseReleasedEvent(MouseReleasedEvent& e);
-		bool OnMouseScrollEvent(MouseScrollEvent& e);
 	};
 
 }

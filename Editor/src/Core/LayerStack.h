@@ -16,6 +16,7 @@ namespace Editor {
 
 		void OnEvent(Event& event);
 		void OnUpdate();
+		void OnImGuiRender();
 
 	private:
 		std::vector<Layer*> s_Layers;
