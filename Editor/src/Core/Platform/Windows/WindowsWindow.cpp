@@ -34,7 +34,7 @@ namespace Editor {
 	void WIN32CustomProcess(SDL_Window* win, SDL_Event* ev)
 	{
 		// Window move
-		if (ev->type == SDL_EVENT_MOUSE_BUTTON_DOWN && (ev->motion.y < 20))
+		if (ev->type == SDL_EVENT_MOUSE_BUTTON_DOWN && (ev->motion.y < 40))
 		{
 			SDL_Window* focus = SDL_GetKeyboardFocus();
 

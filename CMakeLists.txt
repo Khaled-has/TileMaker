@@ -36,6 +36,7 @@ target_include_directories(Editor PUBLIC
 							"${CMAKE_SOURCE_DIR}/Editor/external/spdlog/include"    # Spdlog
 							"${CMAKE_SOURCE_DIR}/Editor/external/ImGui"				# ImGui
 							"${CMAKE_SOURCE_DIR}/Editor/external/glm"				# glm
+							"${CMAKE_SOURCE_DIR}/Editor/external/stb"				# stb
 
 							"${CMAKE_SOURCE_DIR}/Editor/src"						# Editor Source Code
 )

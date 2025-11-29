@@ -15,8 +15,9 @@ add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME} PRIVATE
 				"src/main.cpp" "src/Application.cpp" "src/Log/Log.cpp" "src/Core/Platform/Windows/WindowsWindow.cpp"
 				"src/Core/LayerStack.cpp" "src/Core/ImGui/ImGuiLayer.cpp" "src/Core/Platform/Windows/WindowsInput.cpp"
+				
 				${IMGUI_CPP}
-)
+ "src/Core/ImGui/ImTexture.cpp")
 
 # ==============  Platform Settings
 if(WIN32) # ====>  Windows

@@ -34,12 +34,10 @@ namespace Editor
 		inline virtual void* GetNativeContext() const override { return w_Context; }
 
 	private:
-		WindowProp w_Prop;
+		WindowProp w_Prop{"TileMaker  ( Release 1.0.0v )"};
 
 		SDL_Window* w_Window	= nullptr;
 		SDL_GLContext w_Context = 0;
-
-		
 	};
 
 	WindowsWindow* CreateWindowsWindow();

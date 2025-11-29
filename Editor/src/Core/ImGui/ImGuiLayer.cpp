@@ -52,6 +52,11 @@ namespace Editor {
 		// Custom Style
 		ImGuiStyle& style = ImGui::GetStyle();
 
+		// Colors
+		style.Colors[ImGuiCol_Button].w = 0.f;
+		style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0, 0, 0, 1.f);
+		style.Colors[ImGuiCol_WindowBg] = ImVec4(0.12549f, 0.12549f, 0.12549f, 1.f);
+		style.Colors[ImGuiCol_TabDimmedSelected] = ImVec4(0.19549f, 0.19549f, 0.19549f, 1.f);
 		style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.1333f, 0.1333f, 0.1333f, 1.0f);
 
 		ED_LOG_WARN("||---> ImGui Initialized <---||");
@@ -95,7 +100,7 @@ namespace Editor {
 		if (opt_fullscreen)
 		{
 			const ImGuiViewport* viewport = ImGui::GetMainViewport();
-			ImGui::SetNextWindowPos(viewport->WorkPos);
+			ImGui::SetNextWindowPos(ImVec2(viewport->WorkPos.x, viewport->WorkPos.y));
 			ImGui::SetNextWindowSize(viewport->WorkSize);
 			ImGui::SetNextWindowViewport(viewport->ID);
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
@@ -141,7 +146,7 @@ namespace Editor {
 		ImGui::End();
 
 		// Titlebar
-		TitleBar(nullptr);
+		TitleBar();
 
 	}
 
@@ -165,7 +170,7 @@ namespace Editor {
 		}
 	}
 
-	void ImGuiLayer::TitleBar(bool* pAppClose)
+	void ImGuiLayer::TitleBar()
 	{
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.f, 14.f));
@@ -185,17 +190,17 @@ namespace Editor {
 			}
 
 			// Title
-			ImGui::SameLine((ImGui::GetWindowWidth() / 2) - 30.f);
+			ImGui::SameLine(((ImGui::GetWindowWidth() / 2) - 125.0f));
 			ImGui::Text(Application::Get()->GetWindow()->GetProperties().Title.c_str());
 
 			ImGui::SameLine(ImGui::GetWindowWidth() - 44.f);
 
-			/*if (ImGui::ImageButton("&&", (ImTextureRef)tex.GetID(), ImVec2(20.f, 20.f)))
+			if (ImGui::ImageButton("&&", (ImTextureRef)text.GetID(), ImVec2(20.f, 20.f)))
 			{
-				*pAppClose = false;
+				// Close The Application
 			}
 
-			ImGui::SameLine(ImGui::GetWindowWidth() - 80.f);
+			/*ImGui::SameLine(ImGui::GetWindowWidth() - 80.f);
 			if (ImGui::ImageButton("&77", (ImTextureRef)tex_2.GetID(), ImVec2(20.f, 20.f)))
 			{
 				printf("Out\n");
@@ -205,8 +210,7 @@ namespace Editor {
 		ImGui::EndMainMenuBar();
 		ImGui::PopStyleVar();
 
-
-		if (ImGui::Begin("Editor Styal"))
+		if (ImGui::Begin("Editor Style"))
 			ImGui::ShowStyleEditor();
 		ImGui::End();
 

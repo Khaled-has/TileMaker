@@ -6,8 +6,10 @@
 #include "Core/Events/MouseEvent.h"
 #include "Core/Events/KeyEvent.h"
 
-namespace Editor {
+#include "ImTexture.h"
 
+namespace Editor {
+	
 	class ImGuiLayer : public Layer
 	{
 	public:
@@ -20,9 +22,11 @@ namespace Editor {
 
 		void Begin();
 		void End();
-
+		
 	private:
-		void TitleBar(bool* pAppClose);
+		ImTexture text{ "TT/X.png" };
+
+		void TitleBar();
 	};
 
 }
