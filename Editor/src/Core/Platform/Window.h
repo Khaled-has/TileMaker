@@ -38,6 +38,8 @@ namespace Editor {
 		virtual void OnEvent(EventFn evenFn) const = 0;
 		virtual void Create() = 0;
 
+		virtual WindowProp GetProperties() const = 0;
+
 		virtual void* GetNativeWindow() const = 0;
 		virtual void* GetNativeContext() const = 0;
 

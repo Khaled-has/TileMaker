@@ -21,6 +21,8 @@ namespace Editor {
 		void Begin();
 		void End();
 
+	private:
+		void TitleBar(bool* pAppClose);
 	};
 
 }

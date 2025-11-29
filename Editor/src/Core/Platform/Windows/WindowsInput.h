@@ -1,6 +1,8 @@
 #ifndef WINDOWSINPIT_H
 #define WINDOWSINPIT_H
 
+#ifdef WIN32
+
 #include "Core/Events/Input.h"
 
 namespace Editor {
@@ -15,5 +17,7 @@ namespace Editor {
     };
 
 }
+
+#endif  // WIN32
 
 #endif

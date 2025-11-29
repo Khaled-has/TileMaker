@@ -49,6 +49,11 @@ namespace Editor {
 		ED_ASSERT(task, "Failed To Init SDL3 Context & Window For ImGui");
 #endif
 
+		// Custom Style
+		ImGuiStyle& style = ImGui::GetStyle();
+
+		style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.1333f, 0.1333f, 0.1333f, 1.0f);
+
 		ED_LOG_WARN("||---> ImGui Initialized <---||");
 	}
 
@@ -86,7 +91,7 @@ namespace Editor {
 
 		// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
 		// because it would be confusing to have two docking targets within each others.
-		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+		ImGuiWindowFlags window_flags = /*ImGuiWindowFlags_MenuBar |*/ ImGuiWindowFlags_NoDocking;
 		if (opt_fullscreen)
 		{
 			const ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -135,6 +140,9 @@ namespace Editor {
 
 		ImGui::End();
 
+		// Titlebar
+		TitleBar(nullptr);
+
 	}
 
 	void ImGuiLayer::End()
@@ -150,10 +158,58 @@ namespace Editor {
 			
 			auto currentWindow = Application::Get()->GetWindow();
 
+			// ReMake Context For Update ImGui Docking Viewports
 #ifdef ED_WINDOW_SDL3
 			SDL_GL_MakeCurrent(static_cast<SDL_Window*>(currentWindow->GetNativeWindow()), static_cast<SDL_GLContext>(currentWindow->GetNativeContext()));
 #endif
 		}
+	}
+
+	void ImGuiLayer::TitleBar(bool* pAppClose)
+	{
+
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.f, 14.f));
+
+		if (ImGui::BeginMainMenuBar())
+		{
+
+			if (ImGui::BeginMenu("File"))
+			{
+				if (ImGui::MenuItem("FFF"))
+				{
+					ImGui::EndTabItem();
+				}
+
+
+				ImGui::EndMenu();
+			}
+
+			// Title
+			ImGui::SameLine((ImGui::GetWindowWidth() / 2) - 30.f);
+			ImGui::Text(Application::Get()->GetWindow()->GetProperties().Title.c_str());
+
+			ImGui::SameLine(ImGui::GetWindowWidth() - 44.f);
+
+			/*if (ImGui::ImageButton("&&", (ImTextureRef)tex.GetID(), ImVec2(20.f, 20.f)))
+			{
+				*pAppClose = false;
+			}
+
+			ImGui::SameLine(ImGui::GetWindowWidth() - 80.f);
+			if (ImGui::ImageButton("&77", (ImTextureRef)tex_2.GetID(), ImVec2(20.f, 20.f)))
+			{
+				printf("Out\n");
+			}*/
+
+		}
+		ImGui::EndMainMenuBar();
+		ImGui::PopStyleVar();
+
+
+		if (ImGui::Begin("Editor Styal"))
+			ImGui::ShowStyleEditor();
+		ImGui::End();
+
 	}
 
 }

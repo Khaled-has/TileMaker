@@ -1,13 +1,13 @@
 #include "WindowsInput.h"
 
+#ifdef WIN32
+
 #include <SDL3/SDL.h>
 #include "Application.h"
 
 namespace Editor {
 
-#ifdef WIN32
 	Input* Input::s_Instance = new WindowsInput();
-#endif
 
 	bool WindowsInput::IsKeyPressedImpl(unsigned int keycode)
 	{
@@ -32,3 +32,4 @@ namespace Editor {
 	}
 
 }
+#endif	// WIN32

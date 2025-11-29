@@ -1,5 +1,7 @@
 ﻿#include "WindowsWindow.h"
 
+#ifdef WIN32
+
 #include "Log/Log.h"
 #include "WindowsInput.h"
 
@@ -12,7 +14,6 @@
 #endif
 namespace Editor {
 
-	
 	WindowsWindow::WindowsWindow()
 	{
 	}
@@ -30,6 +31,31 @@ namespace Editor {
 		SDL_GL_SwapWindow(w_Window);
 	}
 
+	void WIN32CustomProcess(SDL_Window* win, SDL_Event* ev)
+	{
+		// Window move
+		if (ev->type == SDL_EVENT_MOUSE_BUTTON_DOWN && (ev->motion.y < 20))
+		{
+			SDL_Window* focus = SDL_GetKeyboardFocus();
+
+			if (focus == win)
+			{
+				// Window move process
+				SDL_PropertiesID props = SDL_GetWindowProperties(win);
+				HWND hwnd = (HWND)SDL_GetPointerProperty(
+					props,
+					SDL_PROP_WINDOW_WIN32_HWND_POINTER,
+					NULL
+				);
+
+				ED_ASSERT(hwnd, "Failed to take HWND WIN32 for SDL3 window");
+
+				ReleaseCapture();
+				SendMessage(hwnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+			}
+		}
+	}
+
 	void WindowsWindow::OnEvent(EventFn eventFn) const
 	{
 
@@ -37,8 +63,11 @@ namespace Editor {
 
 		while (SDL_PollEvent(&ev))
 		{
-			//ImGui Event
+			// ImGui Event
 			ImGui_ImplSDL3_ProcessEvent(&ev);
+
+			// Some WIN32 process
+			WIN32CustomProcess(w_Window, &ev);
 
 			// Application Check
 			{
@@ -116,8 +145,8 @@ namespace Editor {
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
 		w_Window = SDL_CreateWindow(
-			w_Prop.Title.c_str(), 
-			w_Prop.Width, w_Prop.Height, 
+			w_Prop.Title.c_str(),
+			w_Prop.Width, w_Prop.Height,
 			SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
 		);
 
@@ -152,6 +181,8 @@ namespace Editor {
 		style &= ~WS_SYSMENU;
 		style &= ~WS_MAXIMIZEBOX;
 		style &= ~WS_MINIMIZEBOX;
+		
+		
 
 		SetWindowLong(hwnd, GWL_STYLE, style);
 
@@ -169,21 +200,8 @@ namespace Editor {
 		return new WindowsWindow();
 	}
 
-	void handleWindowSize(SDL_Window* win, SDL_Event* ev, unsigned int side)
-	{
-
-		int w, h, x, y;
-		SDL_GetWindowSize(win, &w, &h);
-
-		if (ev->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
-
-			// Right
-			if (side == 0)
-			{
-				SDL_SetWindowSize(win, w + ev->motion.xrel, h);
-				ED_LOG_TRACE("{0} | {1}", ev->motion.xrel, ev->motion.yrel);
-			}
-		}
-	}
+	
 
 }
+
+#endif
