@@ -62,6 +62,7 @@ namespace Editor
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			pAppImGui->Begin();
+			pAppWindow->CustomBar();
 			pAppLayers->OnImGuiRender();
 			pAppImGui->End();
 

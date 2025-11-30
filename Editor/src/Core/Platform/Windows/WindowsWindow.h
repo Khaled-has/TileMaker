@@ -12,6 +12,8 @@
 #include "Core/Events/ApplicationEvent.h"
 #include "Core/Events/MouseEvent.h"
 
+#include "Core/ImGui/ImTexture.h"
+
 namespace Editor
 {
 
@@ -24,6 +26,7 @@ namespace Editor
 		void OnUpdate() override;
 		void OnEvent(EventFn evenFn) const override;
 		void Create() override;
+		void CustomBar() override;
 
 		unsigned int GetWidth() const override { return w_Prop.Width; }
 		unsigned int GetHeight() const override { return w_Prop.Height; }
@@ -38,6 +41,8 @@ namespace Editor
 
 		SDL_Window* w_Window	= nullptr;
 		SDL_GLContext w_Context = 0;
+
+		ImTexture textureBar;
 	};
 
 	WindowsWindow* CreateWindowsWindow();

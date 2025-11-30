@@ -17,16 +17,11 @@ namespace Editor {
 		~ImGuiLayer();
 
 		virtual void OnAttach() override;
-		virtual void OnDeatch() override;
+		virtual void OnDetach() override;
 		virtual void OnImGuiRender() override;
 
 		void Begin();
 		void End();
-		
-	private:
-		ImTexture text{ "TT/X.png" };
-
-		void TitleBar();
 	};
 
 }

@@ -16,7 +16,7 @@ namespace Editor {
 		}
 
 		virtual void OnAttach() {};
-		virtual void OnDeatch() {};
+		virtual void OnDetach() {};
 
 		virtual void OnUpdate() {};
 		virtual void OnImGuiRender() {};

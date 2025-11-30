@@ -10,6 +10,9 @@
 #include <SDL3/SDL_system.h>
 #include <Windows.h>
 
+#include <dwmapi.h>
+#pragma comment(lib, "dwmapi.lib")
+
 #ifndef ASSETS_PATH
 #endif
 namespace Editor {
@@ -169,22 +172,29 @@ namespace Editor {
 			NULL
 		);
 
-		// Update window's size for fixe some ui components
-		SDL_SetWindowSize(w_Window, w_Prop.Width, w_Prop.Height - 10);
-		SDL_SetWindowSize(w_Window, w_Prop.Width, w_Prop.Height);
-
 		ED_ASSERT(hwnd, "Failed to take HWND WIN32 for SDL3 window");
 
 		LONG style = GetWindowLong(hwnd, GWL_STYLE);
 
-		style &= ~WS_CAPTION;
+		style &= ~(WS_CAPTION);
 		style &= ~WS_SYSMENU;
 		style &= ~WS_MAXIMIZEBOX;
 		style &= ~WS_MINIMIZEBOX;
 		
-		
-
 		SetWindowLong(hwnd, GWL_STYLE, style);
+
+
+		// TitleBar Color
+		DWORD border = RGB(100, 100, 100);
+		DwmSetWindowAttribute(hwnd, DWMWA_BORDER_COLOR, &border, sizeof(border));
+
+		COLORREF color = RGB(0, 0, 0);
+		DwmSetWindowAttribute(
+			hwnd,
+			DWMWA_CAPTION_COLOR,
+			&color,
+			sizeof(color)
+		);
 
 		SetWindowPos(
 			hwnd, NULL,
@@ -192,7 +202,78 @@ namespace Editor {
 			SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED
 			);
 
+		// Update window's size for fixe some ui components
+		SDL_SetWindowSize(w_Window, w_Prop.Width, w_Prop.Height - 10);
+		SDL_SetWindowSize(w_Window, w_Prop.Width, w_Prop.Height);
+
+		textureBar.Load("TT/Bar.png");
+
 		ED_LOG_TRACE("=========>  Windows window created!");
+	}
+
+	void WindowsWindow::CustomBar()
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.f, 14.f));
+
+
+		if (ImGui::BeginMainMenuBar())
+		{
+
+			if (ImGui::BeginMenu("File"))
+			{
+				if (ImGui::MenuItem("FFF"))
+				{
+					ImGui::EndTabItem();
+				}
+
+
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("Edite"))
+			{
+				if (ImGui::MenuItem("FFF"))
+				{
+					ImGui::EndTabItem();
+				}
+
+
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("Window"))
+			{
+				if (ImGui::MenuItem("FFF"))
+				{
+					ImGui::EndTabItem();
+				}
+
+
+				ImGui::EndMenu();
+			}
+
+			// Title
+			ImGui::SameLine(((ImGui::GetWindowWidth() / 2) - 125.0f));
+			ImGui::Text(w_Prop.Title.c_str());
+
+			ImGui::SameLine(ImGui::GetWindowWidth() - 44.f);
+
+			if (ImGui::ImageButton("&&", (ImTextureRef)textureBar.GetID(), ImVec2(20.f, 20.f), ImVec2(0, 0), ImVec2(0.5f, 1.0f)))
+			{
+				// Close The Application
+			}
+
+			ImGui::SameLine(ImGui::GetWindowWidth() - 80.f);
+			if (ImGui::ImageButton("&77", (ImTextureRef)textureBar.GetID(), ImVec2(20.f, 20.f), ImVec2(0.5f, 0), ImVec2(1.0f, 1.0f)))
+			{
+
+			}
+
+		}
+		ImGui::EndMainMenuBar();
+		ImGui::PopStyleVar();
+
+		if (ImGui::Begin("Editor Style"))
+			ImGui::ShowStyleEditor();
+		ImGui::End();
 	}
 
 	WindowsWindow* CreateWindowsWindow()

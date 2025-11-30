@@ -57,12 +57,17 @@ namespace Editor {
 		style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0, 0, 0, 1.f);
 		style.Colors[ImGuiCol_WindowBg] = ImVec4(0.12549f, 0.12549f, 0.12549f, 1.f);
 		style.Colors[ImGuiCol_TabDimmedSelected] = ImVec4(0.19549f, 0.19549f, 0.19549f, 1.f);
-		style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.1333f, 0.1333f, 0.1333f, 1.0f);
+		style.Colors[ImGuiCol_Border] = ImVec4(0, 0, 0, 0);
+
+		/*style.WindowPadding = ImVec2(0.f, 0.f);
+		style.FramePadding = ImVec2(4, 4);*/
+
+		style.DisplaySafeAreaPadding = ImVec2(0, -10);
 
 		ED_LOG_WARN("||---> ImGui Initialized <---||");
 	}
 
-	void ImGuiLayer::OnDeatch()
+	void ImGuiLayer::OnDetach()
 	{
 	}
 
@@ -87,8 +92,8 @@ namespace Editor {
 		// Docking Space
 		
 		// TL;DR; this demo is more complicated than what most users you would normally use.
-	// If we remove all options we are showcasing, this demo would become a simple call to ImGui::DockSpaceOverViewport() !!
-	// In this specific demo, we are not using DockSpaceOverViewport() because:
+		// If we remove all options we are showcasing, this demo would become a simple call to ImGui::DockSpaceOverViewport() !!
+		// In this specific demo, we are not using DockSpaceOverViewport() because:
 
 		static bool opt_fullscreen = true;
 		static bool opt_padding = false;
@@ -99,14 +104,16 @@ namespace Editor {
 		ImGuiWindowFlags window_flags = /*ImGuiWindowFlags_MenuBar |*/ ImGuiWindowFlags_NoDocking;
 		if (opt_fullscreen)
 		{
-			const ImGuiViewport* viewport = ImGui::GetMainViewport();
+			ImGuiViewport* viewport = ImGui::GetMainViewport();
+			viewport->Flags |= ImGuiViewportFlags_NoDecoration;
 			ImGui::SetNextWindowPos(ImVec2(viewport->WorkPos.x, viewport->WorkPos.y));
 			ImGui::SetNextWindowSize(viewport->WorkSize);
 			ImGui::SetNextWindowViewport(viewport->ID);
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 			window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoDecoration;
 		}
 		else
 		{
@@ -134,6 +141,7 @@ namespace Editor {
 		if (opt_fullscreen)
 			ImGui::PopStyleVar(2);
 
+		ImGui::PopStyleVar();
 		// Submit the DockSpace
 		// REMINDER: THIS IS A DEMO FOR ADVANCED USAGE OF DockSpace()!
 		// MOST REGULAR APPLICATIONS WILL SIMPLY WANT TO CALL DockSpaceOverViewport(). READ COMMENTS ABOVE.
@@ -144,9 +152,6 @@ namespace Editor {
 		}
 
 		ImGui::End();
-
-		// Titlebar
-		TitleBar();
 
 	}
 
@@ -168,52 +173,6 @@ namespace Editor {
 			SDL_GL_MakeCurrent(static_cast<SDL_Window*>(currentWindow->GetNativeWindow()), static_cast<SDL_GLContext>(currentWindow->GetNativeContext()));
 #endif
 		}
-	}
-
-	void ImGuiLayer::TitleBar()
-	{
-
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.f, 14.f));
-
-		if (ImGui::BeginMainMenuBar())
-		{
-
-			if (ImGui::BeginMenu("File"))
-			{
-				if (ImGui::MenuItem("FFF"))
-				{
-					ImGui::EndTabItem();
-				}
-
-
-				ImGui::EndMenu();
-			}
-
-			// Title
-			ImGui::SameLine(((ImGui::GetWindowWidth() / 2) - 125.0f));
-			ImGui::Text(Application::Get()->GetWindow()->GetProperties().Title.c_str());
-
-			ImGui::SameLine(ImGui::GetWindowWidth() - 44.f);
-
-			if (ImGui::ImageButton("&&", (ImTextureRef)text.GetID(), ImVec2(20.f, 20.f)))
-			{
-				// Close The Application
-			}
-
-			/*ImGui::SameLine(ImGui::GetWindowWidth() - 80.f);
-			if (ImGui::ImageButton("&77", (ImTextureRef)tex_2.GetID(), ImVec2(20.f, 20.f)))
-			{
-				printf("Out\n");
-			}*/
-
-		}
-		ImGui::EndMainMenuBar();
-		ImGui::PopStyleVar();
-
-		if (ImGui::Begin("Editor Style"))
-			ImGui::ShowStyleEditor();
-		ImGui::End();
-
 	}
 
 }
