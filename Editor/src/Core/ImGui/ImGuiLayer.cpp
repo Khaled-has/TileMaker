@@ -82,7 +82,7 @@ namespace Editor {
 		ImGuiIO& io = ImGui::GetIO();
 		auto appWindow = Application::Get()->GetWindow();
 		io.DisplaySize = ImVec2(appWindow->GetWidth(), appWindow->GetHeight());
-
+		ED_LOG_TRACE("{0} | {1}", appWindow->GetWidth(), appWindow->GetHeight());
 		ImGui_ImplOpenGL3_NewFrame();
 #ifdef ED_WINDOW_SDL3	// If The Window from SDL3
 		ImGui_ImplSDL3_NewFrame();

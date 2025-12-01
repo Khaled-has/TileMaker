@@ -55,7 +55,7 @@ namespace Editor
 	{
 		while (pAppRunning)
 		{
-			pAppWindow->OnEvent(BIND_FN(Application::AppEvent));
+			pAppWindow->SetCallbackEventFunc(BIND_FN(Application::AppEvent));
 
 			pAppLayers->OnUpdate();
 

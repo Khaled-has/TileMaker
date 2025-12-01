@@ -24,7 +24,7 @@ namespace Editor
 		~WindowsWindow();
 
 		void OnUpdate() override;
-		void OnEvent(EventFn evenFn) const override;
+		void SetCallbackEventFunc(EventFn evenFn) override;
 		void Create() override;
 		void CustomBar() override;
 
@@ -43,6 +43,8 @@ namespace Editor
 		SDL_GLContext w_Context = 0;
 
 		ImTexture textureBar;
+
+		void ProcessChangesForWIN32();
 	};
 
 	WindowsWindow* CreateWindowsWindow();

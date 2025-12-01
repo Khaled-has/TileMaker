@@ -7,9 +7,12 @@
 
 #include <imgui_impl_sdl3.h>
 
+#include <SDL3/SDL.h>
 #include <SDL3/SDL_system.h>
 #include <Windows.h>
+#include <windowsx.h>
 
+#include <iostream>
 #include <dwmapi.h>
 #pragma comment(lib, "dwmapi.lib")
 
@@ -59,11 +62,11 @@ namespace Editor {
 		}
 	}
 
-	void WindowsWindow::OnEvent(EventFn eventFn) const
+	void WindowsWindow::SetCallbackEventFunc(EventFn eventFn)
 	{
 
 		SDL_Event ev;
-
+		SDL_PumpEvents();
 		while (SDL_PollEvent(&ev))
 		{
 			// ImGui Event
@@ -71,7 +74,7 @@ namespace Editor {
 
 			// Some WIN32 process
 			WIN32CustomProcess(w_Window, &ev);
-
+			ED_LOG_TRACE("Event Updated");
 			// Application Check
 			{
 				// Quit
@@ -82,6 +85,10 @@ namespace Editor {
 					eventFn(event);
 					break;
 				}
+				// Window size
+				int w, h;
+				SDL_GetWindowSize(w_Window, &w, &h);
+				w_Prop.Width = w; w_Prop.Height = h;
 			}
 
 			// Key Pressed
@@ -136,6 +143,41 @@ namespace Editor {
 
 	}
 
+	// WIN32 For ReSizeable The Window
+	static LRESULT CALLBACK SDLWin32Proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+	{
+		switch (msg)
+		{
+		case WM_NCHITTEST:
+		{
+			POINT ptMouse = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+			ScreenToClient(hwnd, &ptMouse);
+
+			RECT rc;
+			GetClientRect(hwnd, &rc);
+
+			const LONG border = 8;
+			bool top = ptMouse.y < border;
+			bool bottom = ptMouse.y >= rc.bottom - border;
+			bool left = ptMouse.x < border;
+			bool right = ptMouse.x >= rc.right - border;
+
+			if (top && left) return HTTOPLEFT;
+			if (top && right) return HTTOPRIGHT;
+			if (bottom && left) return HTBOTTOMLEFT;
+			if (bottom && right) return HTBOTTOMRIGHT;
+			if (top) return HTTOP;
+			if (bottom) return HTBOTTOM;
+			if (left) return HTLEFT;
+			if (right) return HTRIGHT;
+
+			return NULL;
+		}
+		}
+
+		return DefWindowProc(hwnd, msg, wParam, lParam);
+	}
+
 	void WindowsWindow::Create()
 	{
 		SDL_Init(SDL_INIT_VIDEO);
@@ -150,8 +192,10 @@ namespace Editor {
 		w_Window = SDL_CreateWindow(
 			w_Prop.Title.c_str(),
 			w_Prop.Width, w_Prop.Height,
-			SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
+			SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY
 		);
+
+		
 
 		ED_ASSERT(w_Window, "Failed create SDL window!");
 
@@ -176,7 +220,7 @@ namespace Editor {
 
 		LONG style = GetWindowLong(hwnd, GWL_STYLE);
 
-		style &= ~(WS_CAPTION);
+		style &= ~(WS_CAPTION | WS_THICKFRAME);
 		style &= ~WS_SYSMENU;
 		style &= ~WS_MAXIMIZEBOX;
 		style &= ~WS_MINIMIZEBOX;
@@ -188,13 +232,11 @@ namespace Editor {
 		DWORD border = RGB(100, 100, 100);
 		DwmSetWindowAttribute(hwnd, DWMWA_BORDER_COLOR, &border, sizeof(border));
 
-		COLORREF color = RGB(0, 0, 0);
-		DwmSetWindowAttribute(
-			hwnd,
-			DWMWA_CAPTION_COLOR,
-			&color,
-			sizeof(color)
-		);
+		MARGINS margins = { 1, 1, 1, 1 };
+		DwmExtendFrameIntoClientArea(hwnd, &margins);
+
+		DWM_WINDOW_CORNER_PREFERENCE cornerPreference = DWMWCP_ROUND;
+		DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &cornerPreference, sizeof(cornerPreference));
 
 		SetWindowPos(
 			hwnd, NULL,
@@ -202,19 +244,37 @@ namespace Editor {
 			SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED
 			);
 
+		// Set Window Native ReSizeable System
+		
+		
+		SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)SDLWin32Proc);
+
 		// Update window's size for fixe some ui components
-		SDL_SetWindowSize(w_Window, w_Prop.Width, w_Prop.Height - 10);
+		SDL_SetWindowSize(w_Window, w_Prop.Width - 40, w_Prop.Height - 20);
 		SDL_SetWindowSize(w_Window, w_Prop.Width, w_Prop.Height);
+
 
 		textureBar.Load("TT/Bar.png");
 
 		ED_LOG_TRACE("=========>  Windows window created!");
 	}
 
+	void SetWin32Show(SDL_Window* win, int flag)
+	{
+		SDL_PropertiesID props = SDL_GetWindowProperties(win);
+		HWND hwnd = (HWND)SDL_GetPointerProperty(
+			props,
+			SDL_PROP_WINDOW_WIN32_HWND_POINTER,
+			NULL
+		);
+
+		ED_ASSERT(hwnd, "Failed Take HWND");
+		ShowWindow(hwnd, flag);
+	}
+
 	void WindowsWindow::CustomBar()
 	{
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.f, 14.f));
-
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8.f, 10.f));
 
 		if (ImGui::BeginMainMenuBar())
 		{
@@ -264,7 +324,17 @@ namespace Editor {
 			ImGui::SameLine(ImGui::GetWindowWidth() - 80.f);
 			if (ImGui::ImageButton("&77", (ImTextureRef)textureBar.GetID(), ImVec2(20.f, 20.f), ImVec2(0.5f, 0), ImVec2(1.0f, 1.0f)))
 			{
-
+				if (!(SDL_GetWindowFlags(w_Window) & SDL_WINDOW_FULLSCREEN))
+					SDL_SetWindowFullscreen(w_Window, true);
+				else
+					SDL_SetWindowFullscreen(w_Window, false);
+				ProcessChangesForWIN32();
+			}
+			ImGui::SameLine(ImGui::GetWindowWidth() - 120.f);
+			if (ImGui::Button("-"))
+			{
+				SetWin32Show(w_Window, SW_MINIMIZE);
+				ProcessChangesForWIN32();
 			}
 
 		}
@@ -274,6 +344,50 @@ namespace Editor {
 		if (ImGui::Begin("Editor Style"))
 			ImGui::ShowStyleEditor();
 		ImGui::End();
+
+	}
+
+	void WindowsWindow::ProcessChangesForWIN32()
+	{
+		SDL_PropertiesID props = SDL_GetWindowProperties(w_Window);
+
+		HWND hwnd = (HWND)SDL_GetPointerProperty(
+			props,
+			SDL_PROP_WINDOW_WIN32_HWND_POINTER,
+			NULL
+		);
+
+		ED_ASSERT(hwnd, "Failed to take HWND WIN32 for SDL3 window");
+
+		LONG style = GetWindowLong(hwnd, GWL_STYLE);
+
+		style &= ~(WS_CAPTION | WS_THICKFRAME);
+		style &= ~WS_SYSMENU;
+		style &= ~WS_MAXIMIZEBOX;
+		style &= ~WS_MINIMIZEBOX;
+
+		SetWindowLong(hwnd, GWL_STYLE, style);
+
+
+		// TitleBar Color
+		DWORD border = RGB(100, 100, 100);
+		DwmSetWindowAttribute(hwnd, DWMWA_BORDER_COLOR, &border, sizeof(border));
+
+		MARGINS margins = { 1, 1, 1, 1 };
+		DwmExtendFrameIntoClientArea(hwnd, &margins);
+
+		DWM_WINDOW_CORNER_PREFERENCE cornerPreference = DWMWCP_ROUND;
+		DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &cornerPreference, sizeof(cornerPreference));
+
+		SetWindowPos(
+			hwnd, NULL,
+			0, 0, 0, 0,
+			SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED
+		);
+
+		// Update window's size for fixe some ui components
+		SDL_SetWindowSize(w_Window, w_Prop.Width - 40, w_Prop.Height - 20);
+		SDL_SetWindowSize(w_Window, w_Prop.Width, w_Prop.Height);
 	}
 
 	WindowsWindow* CreateWindowsWindow()

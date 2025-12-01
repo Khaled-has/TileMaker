@@ -35,7 +35,7 @@ namespace Editor {
 		virtual unsigned int GetHeight() const = 0;
 
 		virtual void OnUpdate() = 0;
-		virtual void OnEvent(EventFn evenFn) const = 0;
+		virtual void SetCallbackEventFunc(EventFn evenFn) = 0;
 		virtual void Create() = 0;
 		virtual void CustomBar() = 0;
 
