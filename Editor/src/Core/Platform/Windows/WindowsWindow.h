@@ -12,8 +12,6 @@
 #include "Core/Events/ApplicationEvent.h"
 #include "Core/Events/MouseEvent.h"
 
-#include "Core/ImGui/ImTexture.h"
-
 namespace Editor
 {
 
@@ -26,7 +24,7 @@ namespace Editor
 		void OnUpdate() override;
 		void SetCallbackEventFunc(EventFn evenFn) override;
 		void Create() override;
-		void CustomBar() override;
+		void CustomBar(bool* pRunning) override;
 
 		unsigned int GetWidth() const override { return w_Prop.Width; }
 		unsigned int GetHeight() const override { return w_Prop.Height; }
@@ -37,12 +35,12 @@ namespace Editor
 		inline virtual void* GetNativeContext() const override { return w_Context; }
 
 	private:
-		WindowProp w_Prop{"TileMaker  ( Release 1.0.0v )"};
+		WindowProp w_Prop{"TileMaker [ Release 1.0.0v ]"};
 
 		SDL_Window* w_Window	= nullptr;
 		SDL_GLContext w_Context = 0;
 
-		ImTexture textureBar;
+		ImTexture textureBar{ "TT/Bar.png" };
 
 		void ProcessChangesForWIN32();
 	};

@@ -1,5 +1,5 @@
-#ifndef HZPCH_H
-#define HZPCH_H
+#ifndef PCH_H
+#define PCH_H
 
 #include <iostream>
 #include <functional>

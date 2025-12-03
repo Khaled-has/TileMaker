@@ -1,7 +1,7 @@
 #ifndef APPLICATIONEVENT_H
 #define APPLICATIONEVENT_H
 
-#include "hzpch.h"
+#include "pch.h"
 #include "Event.h"
 
 #define ED_APP_QUIT 1

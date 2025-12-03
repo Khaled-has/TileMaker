@@ -60,6 +60,24 @@ namespace Editor {
 				SendMessage(hwnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
 			}
 		}
+
+		// Minimum window size
+		if (ev->type == SDL_EVENT_WINDOW_RESIZED)
+		{
+			int w, h;
+			SDL_GetWindowSize(win, &w, &h);
+
+			if (w < 1440)
+			{
+				SDL_SetWindowSize(win, 1440, h);
+			}
+			if (h < 720)
+			{
+				SDL_SetWindowSize(win, w, 720);
+			}
+			
+		}
+
 	}
 
 	void WindowsWindow::SetCallbackEventFunc(EventFn eventFn)
@@ -74,7 +92,7 @@ namespace Editor {
 
 			// Some WIN32 process
 			WIN32CustomProcess(w_Window, &ev);
-			ED_LOG_TRACE("Event Updated");
+
 			// Application Check
 			{
 				// Quit
@@ -143,6 +161,7 @@ namespace Editor {
 
 	}
 
+	static WNDPROC g_OriginalWndProc = nullptr;
 	// WIN32 For ReSizeable The Window
 	static LRESULT CALLBACK SDLWin32Proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
@@ -170,12 +189,10 @@ namespace Editor {
 			if (bottom) return HTBOTTOM;
 			if (left) return HTLEFT;
 			if (right) return HTRIGHT;
-
-			return NULL;
 		}
 		}
 
-		return DefWindowProc(hwnd, msg, wParam, lParam);
+		return CallWindowProcW((WNDPROC)g_OriginalWndProc, hwnd, msg, wParam, lParam);
 	}
 
 	void WindowsWindow::Create()
@@ -192,10 +209,8 @@ namespace Editor {
 		w_Window = SDL_CreateWindow(
 			w_Prop.Title.c_str(),
 			w_Prop.Width, w_Prop.Height,
-			SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY
+			SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY | SDL_WINDOW_BORDERLESS
 		);
-
-		
 
 		ED_ASSERT(w_Window, "Failed create SDL window!");
 
@@ -218,23 +233,14 @@ namespace Editor {
 
 		ED_ASSERT(hwnd, "Failed to take HWND WIN32 for SDL3 window");
 
-		LONG style = GetWindowLong(hwnd, GWL_STYLE);
-
-		style &= ~(WS_CAPTION | WS_THICKFRAME);
-		style &= ~WS_SYSMENU;
-		style &= ~WS_MAXIMIZEBOX;
-		style &= ~WS_MINIMIZEBOX;
-		
-		SetWindowLong(hwnd, GWL_STYLE, style);
-
-
-		// TitleBar Color
+		// Border Color ( Only Windows 11 )
 		DWORD border = RGB(100, 100, 100);
 		DwmSetWindowAttribute(hwnd, DWMWA_BORDER_COLOR, &border, sizeof(border));
 
 		MARGINS margins = { 1, 1, 1, 1 };
 		DwmExtendFrameIntoClientArea(hwnd, &margins);
 
+		// Add Corner for the window ( Only Windows 11 )
 		DWM_WINDOW_CORNER_PREFERENCE cornerPreference = DWMWCP_ROUND;
 		DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &cornerPreference, sizeof(cornerPreference));
 
@@ -245,16 +251,11 @@ namespace Editor {
 			);
 
 		// Set Window Native ReSizeable System
-		
-		
-		SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)SDLWin32Proc);
+		g_OriginalWndProc = (WNDPROC)SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)SDLWin32Proc);
 
 		// Update window's size for fixe some ui components
 		SDL_SetWindowSize(w_Window, w_Prop.Width - 40, w_Prop.Height - 20);
 		SDL_SetWindowSize(w_Window, w_Prop.Width, w_Prop.Height);
-
-
-		textureBar.Load("TT/Bar.png");
 
 		ED_LOG_TRACE("=========>  Windows window created!");
 	}
@@ -270,15 +271,43 @@ namespace Editor {
 
 		ED_ASSERT(hwnd, "Failed Take HWND");
 		ShowWindow(hwnd, flag);
+
+		// TitleBar Color
+		DWORD border = RGB(100, 100, 100);
+		DwmSetWindowAttribute(hwnd, DWMWA_BORDER_COLOR, &border, sizeof(border));
+
+		MARGINS margins = { 1, 1, 1, 1 };
+		DwmExtendFrameIntoClientArea(hwnd, &margins);
+
+		DWM_WINDOW_CORNER_PREFERENCE cornerPreference = DWMWCP_ROUND;
+		DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &cornerPreference, sizeof(cornerPreference));
+
+		// Update window's size for fixe some ui components
+		SetWindowPos(
+			hwnd, NULL,
+			0, 0, 0, 0,
+			SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED
+		);
+
+		int w, h;
+		SDL_GetWindowSize(win, &w, &h);
+		SDL_SetWindowSize(win, w - 20, h - 10);
+		SDL_SetWindowSize(win, w, h);
 	}
 
-	void WindowsWindow::CustomBar()
+	void WindowsWindow::CustomBar(bool* pRunning)
 	{
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8.f, 10.f));
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8.f, 15.f));
 
 		if (ImGui::BeginMainMenuBar())
 		{
 
+		
+			ImGui::Spacing();
+			ImGui::Image((ImTextureRef)w_Prop.icon.GetID(), ImVec2(50, 50));
+			ImGui::Spacing();
+
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 8.0f);
 			if (ImGui::BeginMenu("File"))
 			{
 				if (ImGui::MenuItem("FFF"))
@@ -289,6 +318,7 @@ namespace Editor {
 
 				ImGui::EndMenu();
 			}
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 8.0f);
 			if (ImGui::BeginMenu("Edite"))
 			{
 				if (ImGui::MenuItem("FFF"))
@@ -299,6 +329,7 @@ namespace Editor {
 
 				ImGui::EndMenu();
 			}
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 8.0f);
 			if (ImGui::BeginMenu("Window"))
 			{
 				if (ImGui::MenuItem("FFF"))
@@ -309,32 +340,40 @@ namespace Editor {
 
 				ImGui::EndMenu();
 			}
-
 			// Title
 			ImGui::SameLine(((ImGui::GetWindowWidth() / 2) - 125.0f));
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 8.0f);
 			ImGui::Text(w_Prop.Title.c_str());
 
-			ImGui::SameLine(ImGui::GetWindowWidth() - 44.f);
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 8.0f);
+			ImGui::SameLine(ImGui::GetWindowWidth() - 45.f);
 
-			if (ImGui::ImageButton("&&", (ImTextureRef)textureBar.GetID(), ImVec2(20.f, 20.f), ImVec2(0, 0), ImVec2(0.5f, 1.0f)))
+			if (ImGui::ImageButton("EXIE", (ImTextureRef)textureBar.GetID(), ImVec2(20.f, 20.f), ImVec2(0, 0), ImVec2(0.3333f, 1.0f)))
 			{
 				// Close The Application
+				*pRunning = false;
 			}
 
-			ImGui::SameLine(ImGui::GetWindowWidth() - 80.f);
-			if (ImGui::ImageButton("&77", (ImTextureRef)textureBar.GetID(), ImVec2(20.f, 20.f), ImVec2(0.5f, 0), ImVec2(1.0f, 1.0f)))
+			ImGui::SameLine(ImGui::GetWindowWidth() - 84.f);
+			if (ImGui::ImageButton("MAXMIZE", (ImTextureRef)textureBar.GetID(), ImVec2(20.f, 20.f), ImVec2(0.3333f, 0.0f), ImVec2(0.6666f, 1.0f)))
 			{
-				if (!(SDL_GetWindowFlags(w_Window) & SDL_WINDOW_FULLSCREEN))
-					SDL_SetWindowFullscreen(w_Window, true);
+				static bool max = false;
+				if (!max)
+				{
+					SetWin32Show(w_Window, SW_MAXIMIZE);
+					max = true;
+				}
 				else
-					SDL_SetWindowFullscreen(w_Window, false);
-				ProcessChangesForWIN32();
+				{
+					SetWin32Show(w_Window, SW_SHOWDEFAULT);
+					max = false;
+				}
 			}
-			ImGui::SameLine(ImGui::GetWindowWidth() - 120.f);
-			if (ImGui::Button("-"))
+
+			ImGui::SameLine(ImGui::GetWindowWidth() - 124.f);
+			if (ImGui::ImageButton("MIXMIZE", (ImTextureRef)textureBar.GetID(), ImVec2(20.f, 20.f), ImVec2(0.6666f, 0.0f), ImVec2(1.0f, 1.0f)))
 			{
 				SetWin32Show(w_Window, SW_MINIMIZE);
-				ProcessChangesForWIN32();
 			}
 
 		}

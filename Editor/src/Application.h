@@ -1,7 +1,7 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include "hzpch.h"
+#include "pch.h"
 #include "Core/Platform/Windows/WindowsWindow.h"
 #include "Core/LayerStack.h"
 

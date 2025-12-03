@@ -55,17 +55,25 @@ namespace Editor
 	{
 		while (pAppRunning)
 		{
+			// Lambda Event Window function to add events
 			pAppWindow->SetCallbackEventFunc(BIND_FN(Application::AppEvent));
 
+			// Update layers
 			pAppLayers->OnUpdate();
 
+			// Clear last batch frame
 			glClear(GL_COLOR_BUFFER_BIT);
 
+			// ImGui Begin function:-  Updating the ImGui events
 			pAppImGui->Begin();
-			pAppWindow->CustomBar();
+			// Application Window's custom bar:-  Add the custom window bar
+			pAppWindow->CustomBar(&pAppRunning);
+			// ImGui Render function:-  Render ImGui stuff from all layers
 			pAppLayers->OnImGuiRender();
+			// ImGui End function:-  Send all ImGui stuff to GPU
 			pAppImGui->End();
 
+			// Batching all rendering stuff on screen
 			pAppWindow->OnUpdate();
 		}
 	}

@@ -6,20 +6,25 @@
 
 #include "Core/Events/Event.h"
 
+#include "Core/ImGui/ImTexture.h"
+
 namespace Editor {
 
 
 	struct WindowProp
 	{
-		WindowProp(std::string title = "TileMaker", 
+		WindowProp(
+			std::string title = "TileMaker",
+			const char* icon = "TT/icon.png",
 			unsigned int width = 1440, 
 			unsigned int height = 720
 		)
-			: Title(title), Width(width), Height(height)
+			: Title(title), Width(width), Height(height), icon(icon)
 		{
 		}
 
 		std::string Title;
+		ImTexture icon;
 		unsigned int Width;
 		unsigned int Height;
 	};
@@ -37,7 +42,7 @@ namespace Editor {
 		virtual void OnUpdate() = 0;
 		virtual void SetCallbackEventFunc(EventFn evenFn) = 0;
 		virtual void Create() = 0;
-		virtual void CustomBar() = 0;
+		virtual void CustomBar(bool* pRunning) = 0;
 
 		virtual WindowProp GetProperties() const = 0;
 

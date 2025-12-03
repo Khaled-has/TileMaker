@@ -32,9 +32,7 @@ namespace Editor {
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-
-		io.Fonts->AddFontFromFileTTF((std::string(ASSETS_PATH) + "Fonts/JetBrainsMono-Bold.ttf").c_str());
-
+				
 		ImGui::StyleColorsDark();
 
 		ImGui_ImplOpenGL3_Init("#version 460");
@@ -52,6 +50,12 @@ namespace Editor {
 		// Custom Style
 		ImGuiStyle& style = ImGui::GetStyle();
 
+		// Font
+		io.Fonts->AddFontFromFileTTF((std::string(ASSETS_PATH) + "Fonts/JetBrainsMonoNL-ExtraBold.ttf").c_str());
+		
+		// Font Style
+		style.FontSizeBase = 22.0f;
+
 		// Colors
 		style.Colors[ImGuiCol_Button].w = 0.f;
 		style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0, 0, 0, 1.f);
@@ -59,12 +63,7 @@ namespace Editor {
 		style.Colors[ImGuiCol_TabDimmedSelected] = ImVec4(0.19549f, 0.19549f, 0.19549f, 1.f);
 		style.Colors[ImGuiCol_Border] = ImVec4(0, 0, 0, 0);
 
-		/*style.WindowPadding = ImVec2(0.f, 0.f);
-		style.FramePadding = ImVec2(4, 4);*/
-
-		style.DisplaySafeAreaPadding = ImVec2(0, -10);
-
-		ED_LOG_WARN("||---> ImGui Initialized <---||");
+		ED_LOG_INFO("||---> ImGui Initialized <---||");
 	}
 
 	void ImGuiLayer::OnDetach()
@@ -82,7 +81,7 @@ namespace Editor {
 		ImGuiIO& io = ImGui::GetIO();
 		auto appWindow = Application::Get()->GetWindow();
 		io.DisplaySize = ImVec2(appWindow->GetWidth(), appWindow->GetHeight());
-		ED_LOG_TRACE("{0} | {1}", appWindow->GetWidth(), appWindow->GetHeight());
+
 		ImGui_ImplOpenGL3_NewFrame();
 #ifdef ED_WINDOW_SDL3	// If The Window from SDL3
 		ImGui_ImplSDL3_NewFrame();

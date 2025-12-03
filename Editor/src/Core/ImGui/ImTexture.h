@@ -5,18 +5,21 @@
 
 namespace Editor {
 
+	/* ->	ImTexture For load high quality ImGui textures	 <- */
+
 	struct ImTexture
 	{
 		ImTexture(const char* path) { Load(path); }
-		ImTexture() {}
 
 		~ImTexture();
 
-		void Load(const char* path);
-		inline unsigned int GetID() const { return ID; }
+		unsigned int GetID();
 	private:
-		unsigned int ID;
+		unsigned int ID = 0;
 		bool loaded = false;
+		std::string path = "";
+
+		inline void Load(const char* path) { this->path = path; }
 	};
 
 }

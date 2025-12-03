@@ -12,14 +12,9 @@ namespace Editor {
 		if (loaded) glDeleteTextures(1, &ID);
 	}
 
-	void ImTexture::Load(const char* path)
+	unsigned int ImTexture::GetID()
 	{
-		if (loaded)
-		{
-			ED_LOG_WARN("This Texture Is Loaded Befor Please Clean Your Code: (> {0} <)", path);
-			return;
-		}
-		else 
+		if (!loaded)
 		{
 			int w, h;
 			int channel;
@@ -37,11 +32,10 @@ namespace Editor {
 			glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format, GL_UNSIGNED_BYTE, data);
 
 			// Filters
-			glGenerateMipmap(GL_TEXTURE_2D);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 			ED_LOG_TRACE("Texture loaded: (> {0} <)", path);
 
@@ -49,6 +43,8 @@ namespace Editor {
 			loaded = true;
 		}
 
+		return ID;
 	}
+
 
 }
